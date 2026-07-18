@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive Map — APN 3048-023-007</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<style>
+ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif;}
+ #map{position:absolute;top:60px;bottom:0;left:0;right:0;background:#e8e4d8;}
+ .bar{position:absolute;top:0;left:0;right:0;height:60px;background:#0f2742;color:#fff;z-index:1200;display:flex;align-items:center;padding:0 16px;box-sizing:border-box;gap:16px;}
+ .bar .ttl{font-weight:700;font-size:15px;line-height:1.2;}
+ .bar .ttl small{display:block;font-weight:400;font-size:11px;color:#bcd;}
+ .toggle{margin-left:auto;display:flex;border:1px solid #38618c;border-radius:6px;overflow:hidden;}
+ .toggle button{background:#16324f;color:#cfe0f0;border:none;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+ .toggle button.on{background:#e07b39;color:#fff;}
+ .flag{font-size:10.5px;color:#ffcf6b;font-weight:700;text-align:right;line-height:1.3;}
+ .legend{position:absolute;bottom:16px;left:12px;background:rgba(255,255,255,.95);padding:9px 13px;font-size:12px;z-index:1000;border:1px solid #b9b2a2;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,.25);line-height:1.7;}
+ .legend.dark{background:rgba(15,39,66,.92);color:#fff;border-color:#38618c;}
+ .sw{display:inline-block;width:20px;height:0;border-top-width:4px;border-top-style:solid;vertical-align:middle;margin-right:6px;}
+ .pbox{display:inline-block;width:14px;height:10px;background:rgba(241,196,15,.5);border:2px solid #c0392b;vertical-align:middle;margin-right:6px;}
+ .pline{display:inline-block;width:20px;border-top:2px solid #666;vertical-align:middle;margin-right:6px;}
+ .sq{display:inline-block;width:10px;height:10px;background:#fff;border:2px solid #0f2742;vertical-align:middle;margin-right:8px;}
+ .lbl{font-family:Arial;font-weight:700;font-size:12px;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;}
+ .lbl.sub{color:#0f2742;} .lbl.red{color:#a5281b;} .lbl.org{color:#b45309;} .subjlbl{font:700 11px Arial;}
+</style></head><body>
+<div class="bar">
+ <div class="ttl">APN 3048-023-007 &mdash; 234.5 ac<small>Littlerock (Antelope Valley), unincorporated LA County &bull; 34.4934&deg;N, 117.9711&deg;W</small></div>
+ <div class="toggle"><button id="bTopo" class="on">Topographic</button><button id="bSat">Satellite</button></div>
+ <div class="flag">SCREENING GRADE<br>NOT SURVEY</div>
+</div>
+<div id="map"></div>
+<div id="legend" class="legend">
+ <span class="pbox"></span>Subject parcel &mdash; 234.5 ac<br>
+ <span class="pline"></span>Surrounding parcels (LA County Assessor)<br>
+ <span class="sw" style="border-top-color:#c0392b"></span>500 kV AC &mdash; interconnect target<br>
+ <span class="sw" style="border-top-color:#e07b39"></span>230 kV (Vincent&ndash;Pearblossom)<br>
+ <span class="sq"></span>Substation (derived from HIFLD topology)
+</div>
+<script>
+var topo=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+var sat=L.layerGroup([
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}),
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:.85})
+]);
+var map=L.map('map',{center:[34.5,-117.985],zoom:13,layers:[topo]});
+map.createPane('hs');map.getPane('hs').style.mixBlendMode='multiply';map.getPane('hs').style.zIndex=250;
+var hill=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',{pane:'hs',opacity:0.9,maxZoom:19}).addTo(map);
+var topoParcelStyle={color:'#666666',weight:0.7,opacity:0.45,fillOpacity:0};
+var satParcelStyle={color:'#ffffff',weight:0.8,opacity:0.55,fillOpacity:0};
+var parcels=L.esri.featureLayer({url:'https://public.gis.lacounty.gov/public/rest/services/LACounty_Cache/LACounty_Parcel/MapServer/0',minZoom:13,style:function(){return topoParcelStyle;}}).addTo(map);
+
+// transmission
+L.polyline([[34.5127,-117.905],[34.51511,-117.91339],[34.50882,-117.98513],[34.51109,-117.9872],[34.50831,-118.0356],[34.50109,-118.05516],[34.50073,-118.09964],[34.50858,-118.13258]],{color:'#c0392b',weight:4}).addTo(map);
+L.polyline([[34.53305,-117.72092],[34.50759,-118.02813],[34.49984,-118.04738],[34.49954,-118.10338],[34.4863,-118.11807]],{color:'#c0392b',weight:4}).addTo(map);
+L.polyline([[34.4863,-118.11807],[34.49998,-118.10352],[34.50026,-118.04743],[34.50801,-118.02826],[34.51574,-117.92039],[34.50902,-117.91969]],{color:'#e07b39',weight:3.5}).addTo(map);
+
+var analysis=L.layerGroup();
+function lbl(a,b,x,cls,ax,ay){L.marker([a,b],{icon:L.divIcon({className:'',html:'<div class="lbl '+cls+'">'+x+'</div>',iconSize:[10,10],iconAnchor:[ax||0,ay||0]})}).addTo(analysis);}
+function sub(a,b,x){L.marker([a,b],{icon:L.divIcon({className:'',html:'<div style="width:12px;height:12px;background:#fff;border:2px solid #0f2742"></div>',iconSize:[12,12],iconAnchor:[6,6]})}).addTo(analysis);lbl(a,b,x,'sub',-8,6);}
+sub(34.4863,-118.11807,'VINCENT 500/230 kV hub');
+sub(34.509,-117.9197,'PEARBLOSSOM 230 kV');
+lbl(34.5045,-117.972,'500 kV &bull; 1.4 km N &#8593;','red',40,-2);
+lbl(34.512,-117.95,'230 kV &#8594; Pearblossom','org',-6,4);
+map.addLayer(analysis);
+
+var SUBJ=[[34.49661871148507,-117.96614768934917],[34.49570241767595,-117.96614792937194],[34.4957022195927,-117.96449277151541],[34.49570191739225,-117.96230576340783],[34.49202149149784,-117.96230862529924],[34.49203455951232,-117.96668406927346],[34.49021840360884,-117.96668612385466],[34.4902229061658,-117.96820845779385],[34.49022328634911,-117.96836866388901],[34.4902267201106,-117.96982151186552],[34.49022838270511,-117.97052803328781],[34.49022964143145,-117.97107723793376],[34.49023843515281,-117.97490836307365],[34.49022010326784,-117.97711355170965],[34.49020170357002,-117.97931711323702],[34.49202063512214,-117.97931609690848],[34.4956626194257,-117.97931578890933],[34.4957021001474,-117.97491338637727],[34.49570174322802,-117.97108529247485],[34.49570172705595,-117.97097435689227],[34.4957016640944,-117.97052775410299],[34.49753018505832,-117.97052820167835],[34.49753426272546,-117.96817685578297],[34.49753586657952,-117.96667844805251],[34.49753646157477,-117.96614744872865],[34.49661871148507,-117.96614768934917]];
+L.polygon(SUBJ,{color:'#c0392b',weight:3,fillColor:'#f1c40f',fillOpacity:.5}).addTo(map).bindTooltip('SUBJECT PARCEL • 234.5 ac',{permanent:true,direction:'top',className:'subjlbl'});
+L.control.scale({imperial:true,metric:true}).addTo(map);
+
+var bTopo=document.getElementById('bTopo'),bSat=document.getElementById('bSat'),lg=document.getElementById('legend');
+function setBase(which){
+ if(which==='sat'){map.removeLayer(topo);map.removeLayer(hill);map.addLayer(sat);sat.eachLayer(function(l){l.bringToBack();});
+  parcels.setStyle(function(){return satParcelStyle;});parcels.bringToFront();map.removeLayer(analysis);
+  bSat.classList.add('on');bTopo.classList.remove('on');lg.classList.add('dark');
+ }else{map.removeLayer(sat);map.addLayer(topo);topo.bringToBack();if(!map.hasLayer(hill))map.addLayer(hill);
+  parcels.setStyle(function(){return topoParcelStyle;});map.addLayer(analysis);
+  bTopo.classList.add('on');bSat.classList.remove('on');lg.classList.remove('dark');
+ }
+}
+bTopo.onclick=function(){setBase('topo');};bSat.onclick=function(){setBase('sat');};
+</script></body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Interactive Map — Parcel E-0990-0000-0000</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<style>
+ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif;}
+ #map{position:absolute;top:60px;bottom:0;left:0;right:0;background:#e8e4d8;}
+ .bar{position:absolute;top:0;left:0;right:0;height:60px;background:#0f2742;color:#fff;z-index:1200;display:flex;align-items:center;padding:0 16px;box-sizing:border-box;gap:16px;}
+ .bar .ttl{font-weight:700;font-size:15px;line-height:1.2;}
+ .bar .ttl small{display:block;font-weight:400;font-size:11px;color:#bcd;}
+ .toggle{margin-left:auto;display:flex;border:1px solid #38618c;border-radius:6px;overflow:hidden;}
+ .toggle button{background:#16324f;color:#cfe0f0;border:none;padding:8px 16px;font-size:13px;cursor:pointer;font-weight:600;}
+ .toggle button.on{background:#e07b39;color:#fff;}
+ .flag{font-size:10.5px;color:#ffcf6b;font-weight:700;text-align:right;line-height:1.3;}
+ .legend{position:absolute;bottom:16px;left:12px;background:rgba(255,255,255,.95);padding:9px 13px;font-size:12px;z-index:1000;border:1px solid #b9b2a2;border-radius:5px;box-shadow:0 1px 5px rgba(0,0,0,.25);line-height:1.7;}
+ .legend.dark{background:rgba(15,39,66,.92);color:#fff;border-color:#38618c;}
+ .sw{display:inline-block;width:20px;height:0;border-top-width:4px;border-top-style:solid;vertical-align:middle;margin-right:6px;}
+ .pbox{display:inline-block;width:14px;height:10px;background:rgba(241,196,15,.5);border:2px solid #c0392b;vertical-align:middle;margin-right:6px;}
+ .pline{display:inline-block;width:20px;border-top:2px solid #333;vertical-align:middle;margin-right:6px;}
+ .sq{display:inline-block;width:10px;height:10px;background:#fff;border:2px solid #0f2742;vertical-align:middle;margin-right:8px;}
+ .lbl{font-family:Arial;font-weight:700;font-size:12px;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;}
+ .lbl.sub{color:#0f2742;} .lbl.town{color:#5a5348;font-style:italic;font-weight:400;}
+ .lbl.red{color:#a5281b;} .lbl.mag{color:#7d3ca6;} .lbl.ring{color:#7d7768;font-weight:400;font-size:10.5px;}
+ .subjlbl{font:700 11px Arial;}
+</style></head><body>
+<div class="bar">
+ <div class="ttl">Parcel E-0990-0000-0000 &mdash; 160 ac<small>Escalante Valley, Iron County, Utah &bull; 37.8055&deg;N, 113.5236&deg;W</small></div>
+ <div class="toggle"><button id="bTopo" class="on">Topographic</button><button id="bSat">Satellite</button></div>
+ <div class="flag">SCREENING GRADE<br>NOT SURVEY</div>
+</div>
+<div id="map"></div>
+<div id="legend" class="legend">
+ <span class="pbox"></span>Subject parcel &mdash; 160 ac<br>
+ <span class="pline"></span>Surrounding parcels (UGRC)<br>
+ <span class="sw" style="border-top-color:#c0392b"></span>345 kV AC &mdash; interconnect target<br>
+ <span class="sw" style="border-top-color:#8e44ad;border-top-style:dashed"></span>500 kV HVDC &mdash; not tappable<br>
+ <span class="sw" style="border-top-color:#2e86c1"></span>115 kV sub-transmission<br>
+ <span class="sq"></span>Substation (derived) &nbsp; <span style="color:#7d7768">- -</span> rings 5/15/30 km
+</div>
+<script>
+var topo=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19});
+var sat=L.layerGroup([
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19}),
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,opacity:.85})
+]);
+var map=L.map('map',{center:[37.8035,-113.512],zoom:12,layers:[topo]});
+// ---- hillshade relief (blended into topo to make elevation visible) ----
+map.createPane('hs');map.getPane('hs').style.mixBlendMode='multiply';map.getPane('hs').style.zIndex=250;
+var hill=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',{pane:'hs',opacity:0.9,maxZoom:19}).addTo(map);
+
+// ---- surrounding parcels (subtle, styled per basemap) ----
+var topoParcelStyle={color:'#666666',weight:0.7,opacity:0.45,fillOpacity:0};
+var satParcelStyle={color:'#ffffff',weight:0.8,opacity:0.55,fillOpacity:0};
+var parcels=L.esri.featureLayer({
+ url:'https://services1.arcgis.com/99lidPhWCzftIe9K/arcgis/rest/services/Parcels_Iron_LIR/FeatureServer/0',
+ minZoom:12, style:function(){return topoParcelStyle;}
+}).addTo(map);
+
+// ---- transmission ----
+L.polyline([[37.82288,-113.40826],[37.80112,-113.44558],[37.76302,-113.49169],[37.71193,-113.50967],[37.69029,-113.52321],[37.65261,-113.56282],[37.59934,-113.6053]],{color:'#8e44ad',weight:4,dashArray:'9,7'}).addTo(map);
+L.polyline([[37.80061,-113.15971],[37.79466,-113.45264],[37.76278,-113.49111],[37.71172,-113.50914],[37.6973,-113.52],[37.66827,-113.53087],[37.65148,-113.56201],[37.59919,-113.60475],[37.41301,-113.64521]],{color:'#c0392b',weight:4}).addTo(map);
+L.polyline([[37.80061,-113.15971],[37.79466,-113.45264],[37.75926,-113.48782],[37.71328,-113.5032],[37.6489,-113.55749],[37.41301,-113.64521]],{color:'#c0392b',weight:4}).addTo(map);
+L.polyline([[37.66373,-113.14618],[37.61117,-113.36693],[37.63427,-113.44616],[37.66356,-113.51476],[37.66962,-113.53045],[37.62239,-113.62735],[37.61175,-113.66049]],{color:'#2e86c1',weight:3}).addTo(map);
+L.polyline([[37.67108,-113.53399],[37.69527,-113.62395],[37.70711,-113.65199],[37.70704,-113.69822]],{color:'#2e86c1',weight:3}).addTo(map);
+
+// ---- ANALYSIS + LABELLING layer (shown on topo) ----
+var analysis=L.layerGroup();
+function ring(r){L.circle([37.80546,-113.52362],{radius:r,fill:false,color:'#8c8677',weight:1,dashArray:'5,5'}).addTo(analysis);}
+[5000,15000,30000].forEach(ring);
+function lbl(lat,lng,txt,cls,ax,ay){L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="lbl '+cls+'">'+txt+'</div>',iconSize:[10,10],iconAnchor:[ax||0,ay||0]})}).addTo(analysis);}
+function sub(lat,lng,txt){L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="width:12px;height:12px;background:#fff;border:2px solid #0f2742"></div>',iconSize:[12,12],iconAnchor:[6,6]})}).addTo(analysis);lbl(lat,lng,txt,'sub',-8,6);}
+sub(37.80061,-113.15971,'THREE PEAKS 345 kV');
+sub(37.66962,-113.53045,'Dixie-Escalante 115 kV');
+sub(37.66373,-113.14618,'WEST CEDAR 115 kV');
+[['Cedar City',37.677,-113.061],['Beryl Junction',37.690,-113.652],['Newcastle',37.667,-113.548],['Lund',38.007,-113.44]].forEach(function(p){
+ L.marker([p[1],p[2]],{icon:L.divIcon({className:'',html:'<div style="width:7px;height:7px;background:#6b6455;border-radius:50%"></div>',iconSize:[7,7],iconAnchor:[4,4]})}).addTo(analysis);
+ lbl(p[1],p[2],p[0],'town',-6,10);
+});
+lbl(37.804,-113.469,'345 kV &bull; 4.8 km E &#8594;','red',120,4);
+lbl(37.775,-113.472,'500 kV HVDC &mdash; no tap','mag',90,4);
+lbl(37.85,-113.52362,'5 km','ring',10,0);
+lbl(37.94,-113.52362,'15 km','ring',10,0);
+map.addLayer(analysis);
+
+// ---- subject parcel ----
+var SUBJ=[[37.8090664995922,-113.523609468968],[37.8090390504103,-113.519042743084],[37.8054345298946,-113.519048559676],[37.8018300037903,-113.519053250678],[37.8018614737755,-113.528179356922],[37.8054776227236,-113.528177778582],[37.8090937940447,-113.528175075551]];
+L.polygon(SUBJ,{color:'#c0392b',weight:3,fillColor:'#f1c40f',fillOpacity:.5}).addTo(map).bindTooltip('SUBJECT PARCEL • 160 ac',{permanent:true,direction:'top',className:'subjlbl'});
+L.control.scale({imperial:true,metric:true}).addTo(map);
+
+// ---- basemap toggle ----
+var bTopo=document.getElementById('bTopo'),bSat=document.getElementById('bSat'),lg=document.getElementById('legend');
+function setBase(which){
+ if(which==='sat'){map.removeLayer(topo);map.removeLayer(hill);map.addLayer(sat);sat.eachLayer(function(l){l.bringToBack();});
+  parcels.setStyle(function(){return satParcelStyle;});parcels.bringToFront();
+  map.removeLayer(analysis);
+  bSat.classList.add('on');bTopo.classList.remove('on');lg.classList.add('dark');
+ }else{map.removeLayer(sat);map.addLayer(topo);topo.bringToBack();if(!map.hasLayer(hill))map.addLayer(hill);
+  parcels.setStyle(function(){return topoParcelStyle;});
+  map.addLayer(analysis);
+  bTopo.classList.add('on');bSat.classList.remove('on');lg.classList.remove('dark');
+ }
+}
+bTopo.onclick=function(){setBase('topo');};bSat.onclick=function(){setBase('sat');};
+</script></body></html>
