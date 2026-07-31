@@ -1,0 +1,513 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>INTERNAL — Disposition Report — R5060-285 + R5060 040, Snellville GA</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/esri-leaflet@3.0.12/dist/esri-leaflet.js"></script>
+<style>
+ :root{--navy:#0f2742;--steel:#38618c;--orange:#e07b39;--gold:#c8a24a;--ink:#26313c;--muted:#6b7683;--line:#e2ddd2;}
+ *{box-sizing:border-box;}
+ body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#e9ebee;line-height:1.55;}
+ .page{max-width:960px;margin:24px auto;background:#fff;box-shadow:0 3px 18px rgba(0,0,0,.16);}
+ header{background:linear-gradient(120deg,#0f2742,#20456b);color:#fff;padding:24px 34px;position:relative;}
+ header .kick{font-size:11.5px;letter-spacing:2.5px;color:#a9c6e2;text-transform:uppercase;}
+ header h1{margin:6px 0 4px;font-size:26px;font-weight:700;letter-spacing:.3px;}
+ header .loc{font-size:13.5px;color:#d6e4f2;}
+ header .flag{position:absolute;top:22px;right:34px;text-align:right;font-size:10.5px;color:#ffcf6b;font-weight:700;line-height:1.5;max-width:180px;}
+ /* keep the title clear of the absolutely-positioned flag block, including in print */
+ header .kick,header h1,header .loc{padding-right:196px;}
+ @media (max-width:700px){header .flag{position:static;text-align:left;margin-top:10px;max-width:none;}
+  header .kick,header h1,header .loc{padding-right:0;}}
+ .content{padding:26px 34px 8px;}
+ h2{font-size:14px;letter-spacing:.5px;color:#fff;background:var(--navy);padding:8px 14px;border-radius:4px;margin:30px 0 14px;}
+ h2:first-child{margin-top:6px;}
+ h3{font-size:12.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--navy);margin:16px 0 7px;padding-bottom:4px;border-bottom:2px solid var(--gold);}
+ p{font-size:13.5px;margin:0 0 12px;} .small{font-size:11.5px;color:var(--muted);}
+ .verdict{display:flex;gap:12px;margin:4px 0 6px;}
+ .vb{flex:1;border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:5px;padding:12px 10px;text-align:center;background:#fbfaf7;}
+ .vb .t{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
+ .vb .r{font-size:18px;font-weight:800;margin:5px 0 3px;}
+ .vb .c{font-size:10.5px;color:#9aa2ac;}
+ .r.strong{color:#1e8449;} .r.mod{color:#b9770e;} .r.weak{color:#a5281b;}
+ .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+ table{width:100%;border-collapse:collapse;font-size:12.5px;margin:2px 0 6px;}
+ th{background:#eef1f5;color:var(--navy);text-align:left;padding:7px 10px;border-bottom:2px solid var(--gold);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;}
+ td{padding:6px 10px;border-bottom:1px solid #efeef0;vertical-align:top;}
+ tbody tr:nth-child(even) td{background:#faf9f7;}
+ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;}
+ .pass{color:#1e8449;font-weight:700;} .flag{color:#b9770e;font-weight:700;} .fail{color:#a5281b;font-weight:700;}
+ .kv{border:1px solid var(--line);border-radius:5px;overflow:hidden;}
+ .kv .row{display:flex;justify-content:space-between;gap:10px;padding:7px 12px;font-size:13px;border-bottom:1px solid #f0eee9;}
+ .kv .row:last-child{border-bottom:none;} .kv .row:nth-child(odd){background:#faf9f7;}
+ .kv b{color:var(--navy);font-weight:600;} .kv span{text-align:right;color:#3c4650;}
+ .pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;}
+ .pill.ok{background:#e6f4ea;color:#1e8449;} .pill.mid{background:#fdf0dc;color:#b9770e;} .pill.no{background:#fbe9e7;color:#a5281b;}
+ .mapbox{position:relative;height:520px;border:1px solid var(--line);border-radius:5px;overflow:hidden;}
+ #imap{width:100%;height:100%;background:#e8e4d8;}
+ .mtoggle{position:absolute;top:10px;right:10px;z-index:1000;display:flex;border:1px solid #38618c;border-radius:6px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.35);}
+ .mtoggle button{background:#16324f;color:#cfe0f0;border:none;padding:7px 14px;font-size:12.5px;cursor:pointer;font-weight:600;}
+ .mtoggle button.on{background:#e07b39;color:#fff;}
+ .mlegend{position:absolute;bottom:14px;left:12px;background:rgba(255,255,255,.95);padding:8px 12px;font-size:11.5px;z-index:1000;border:1px solid #b9b2a2;border-radius:5px;box-shadow:0 1px 4px rgba(0,0,0,.2);line-height:1.7;}
+ .mlegend.dark{background:rgba(15,39,66,.92);color:#fff;border-color:#38618c;}
+ .sw{display:inline-block;width:18px;height:0;border-top-width:4px;border-top-style:solid;vertical-align:middle;margin-right:6px;}
+ .pbox{display:inline-block;width:13px;height:9px;background:rgba(241,196,15,.45);border:2px solid #c0392b;vertical-align:middle;margin-right:6px;}
+ .pbox.home{background:rgba(224,123,57,.35);border:2px dashed #b45309;}
+ .pbox.buf{background:rgba(41,128,185,.28);border:1px solid #2980b9;}
+ .pline{display:inline-block;width:18px;border-top:2px solid #666;vertical-align:middle;margin-right:6px;}
+ .lbl{font-family:Arial;font-weight:700;font-size:12px;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;}
+ .lbl.sub{color:#0f2742;} .lbl.red{color:#a5281b;} .lbl.org{color:#b45309;} .lbl.blu{color:#1a5276;}
+ .subjlbl{font:700 11px Arial;}
+ .callout{background:#fbf3ea;border-left:4px solid var(--orange);border-radius:0 5px 5px 0;padding:11px 14px;font-size:12.5px;margin:12px 0;}
+ .callout.bad{background:#fdeeec;border-left-color:#a5281b;}
+ .callout.int{background:#f2f6fb;border-left-color:var(--steel);}
+ .bigverdict{border:2px solid #a5281b;border-radius:6px;background:#fdeeec;padding:14px 18px;margin:14px 0 4px;}
+ .bigverdict .q{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:#7d2018;font-weight:700;}
+ .bigverdict .a{font-size:20px;font-weight:800;color:#a5281b;margin:3px 0 6px;}
+ .bigverdict p{margin:0;font-size:12.5px;}
+ ul.path{font-size:13px;margin:6px 0 4px;padding-left:20px;} ul.path li{margin-bottom:7px;}
+ footer{background:#f5f3ee;border-top:1px solid var(--line);margin-top:18px;padding:16px 34px;font-size:10.5px;color:#6d6656;line-height:1.65;}
+ footer b{color:var(--navy);}
+ .tag{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:3px;vertical-align:middle;}
+ .tag.F{background:#e6f4ea;color:#1e8449;} .tag.A{background:#fdf0dc;color:#b9770e;} .tag.NV{background:#fbe9e7;color:#a5281b;}
+ @media print{body{background:#fff;}.page{box-shadow:none;margin:0;max-width:100%;}@page{margin:11mm;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}h2,h3{break-after:avoid;}table,.mapbox,.vb,.kv{break-inside:avoid;}}
+</style></head>
+<body><div class="page">
+<header>
+ <div class="kick">Internal Deal Workup &bull; Residential Land &mdash; DO NOT DISTRIBUTE</div>
+ <h1>R5060 285 + R5060 040 &mdash; 14.19 sellable acres</h1>
+ <div class="loc">Abilene Ln / Abington Dr, City of Snellville, Gwinnett County, GA 30078 &nbsp;&bull;&nbsp; 33.8526&deg;N, 83.9970&deg;W &nbsp;&bull;&nbsp; Seller: Phillip S. Minkoff</div>
+ <div class="flag">INTERNAL &mdash; KYLE'S EYES ONLY<br>DO NOT DISTRIBUTE<br>SCREENING GRADE<br>Prepared 2026-07-31</div>
+</header>
+<div class="content">
+
+ <h2>Executive Summary</h2>
+ <div class="verdict">
+  <div class="vb"><div class="t">Townhome builder<br>(rezone required)</div><div class="r weak">WEAK</div><div class="c">Confidence: Medium-High</div></div>
+  <div class="vb"><div class="t">Detached builder<br>(RS-30 as-is)</div><div class="r weak">WEAK</div><div class="c">Confidence: Medium</div></div>
+  <div class="vb"><div class="t">Land / estate-lot<br>buyer</div><div class="r mod">MODERATE</div><div class="c">Confidence: Medium</div></div>
+ </div>
+
+ <div class="bigverdict">
+  <div class="q">The $2.9M question, both ways</div>
+  <div class="a">Almost certainly not &mdash; and the townhome path is gated before price.</div>
+  <p>As it sits, 14.19 acres of RS-30 land in this submarket is worth <b>$397,432&ndash;$794,864</b>; the ask is <b>3.6&times;&ndash;7.3&times;</b> that (4.9&times; at the midpoint). Rezoned for townhomes at the density Snellville actually approves from RS-30 (3.84&ndash;4.62 u/ac), central-case value is <b>$1,010,880&ndash;$1,216,800</b>. At the 8.0 u/ac ordinance ceiling that has never been approved in this city, <b>$2,115,360</b> &mdash; still <b>27% below the ask</b> (the ask sits 37% above it). Separately, <b>R-TH requires direct collector or arterial access, and this assemblage's only frontage is a ~40&ndash;60 ft dead-end stub of a local street.</b></p>
+  <p style="margin-top:8px;border-top:1px solid #e8c9c4;padding-top:8px;"><b>Where $2.9M could clear, stated plainly.</b> Under top-of-band assumptions on all three modelled inputs at once, the residual does exceed $2.9M &mdash; break-even falls to <b>4.31 u/ac</b>, below the 4.62 u/ac Snellville approved at Lenora Church in 2025. So the honest claim is not &ldquo;no number works.&rdquo; It is that <b>at the density this site would realistically be approved for, no single input moving alone gets there &mdash; only all three at once</b>, on assumptions that are modelled rather than researched, with no entitlement-risk discount, on a site that appears to fail the access test. See the stress test in &sect;4.</p>
+ </div>
+
+ <div class="grid2" style="margin-top:16px;">
+  <div>
+   <p><b>Thesis.</b> A contiguous 15.69-acre holding &mdash; 11.69 acres of wooded vacant land wrapped around the owner's 4-acre homesite &mdash; inside Snellville city limits, one parcel removed from Century Communities' Oak Grove Glen. The buildable southeast plateau is real and the area is sewered. Everything else about the deal is worse than described: the acreage is overstated by ~2.1 acres, the marketed &ldquo;Abington Dr&rdquo; frontage is actually a 40&ndash;60 ft dead-end on Abilene Ln, and the stream is worse than it first appeared &mdash; the Big Haynes water-supply-watershed buffers are <b>confirmed</b> to apply at 100 ft undisturbed / 150 ft impervious, cutting net developable land to <b>8.68 acres with a ~8.3 acre practical pad</b>, about 58% of what is being sold. The price is set several times above the tier the market has been clearing.</p>
+   <div class="callout"><b>The one thing worth verifying before anything else:</b> whether the City of Snellville will entertain attached product on a tract whose only frontage is the Abilene Ln stub. It is one phone call, it costs nothing, and it decides whether this is a $1M+ entitlement story or a $596,148 acreage trade.</div>
+  </div>
+  <div>
+   <div class="kv">
+    <div class="row"><b>Seller-stated footprint</b><span>~17.8 ac <span class="pill no">overstated ~2.1 ac</span></span></div>
+    <div class="row"><b>County-verified, both parcels</b><span>15.69 ac (contiguous)</span></div>
+    <div class="row"><b>Sellable (house retained)</b><span>14.19 ac &rarr; $204,369/ac at the ask</span></div>
+    <div class="row"><b>Zoning</b><span>RS-30 (legacy &ldquo;RS-180&rdquo;) &bull; City of Snellville</span></div>
+    <div class="row"><b>Road frontage</b><span><span class="pill no">~40&ndash;60 ft, local street only</span></span></div>
+    <div class="row"><b>Nearest collector</b><span>Rockdale Cir &mdash; 513 ft, no frontage</span></div>
+    <div class="row"><b>Net developable</b><span>8.68 ac &bull; ~8.3 ac practical</span></div>
+    <div class="row"><b>Binding buffer regime</b><span>100 ft / 150 ft Big Haynes <span class="pill no">confirmed</span></span></div>
+    <div class="row"><b>Seller's basis on 285</b><span>$36,900 &mdash; 17 Aug 2012</span></div>
+    <div class="row"><b>Own listing history</b><span>6 reprices, 21 months, never sold</span></div>
+    <div class="row"><b>As-is value, 14.19 ac</b><span>$397,432&ndash;$794,864</span></div>
+    <div class="row"><b>Walk-away</b><span><span class="pill no">any price near $2.9M</span></span></div>
+   </div>
+  </div>
+ </div>
+
+ <h2>Interactive Map</h2>
+ <p class="small">Drag to pan, scroll or pinch to zoom, tap any feature for detail, and use the buttons to switch <b>Topographic</b> / <b>Satellite</b>. This report is one self-contained file &mdash; it opens in any browser on phone or desktop (internet is needed only to load the map imagery).</p>
+ <div class="mapbox">
+  <div class="mtoggle"><button id="bTopo" class="on">Topographic</button><button id="bSat">Satellite</button></div>
+  <div id="imap"></div>
+  <div id="mlegend" class="mlegend">
+   <span class="pbox"></span>R5060 285 &mdash; 11.69 ac (for sale)<br>
+   <span class="pbox home"></span>Owner-retained homesite &mdash; 1.5 ac (modelled)<br>
+   <span class="pbox buf"></span>100 ft undisturbed buffer &mdash; 4.97 ac<br>
+   <span class="pbox buf" style="opacity:.6"></span>150 ft impervious setback &mdash; 6.74 ac<br>
+   <span class="sw" style="border-top-color:#1e8449"></span>Rockdale Cir &mdash; Major Collector (513 ft away)<br>
+   <span class="sw" style="border-top-color:#8a8f97"></span>Local streets (no collector frontage)<br>
+   <span class="pline"></span>Surrounding parcels (Gwinnett County)
+</div>
+ </div>
+
+
+ <h2>1. Footprint Reconciliation &mdash; what is actually being conveyed</h2>
+ <p>The seller describes roughly <b>17.8 acres</b>. County records do not support that number. Both Minkoff parcels together are <b>15.69 acres</b>, and the owner is retaining his house &mdash; so the conveyed footprint is <i>smaller</i> than the assemblage, not larger.</p>
+ <table>
+  <thead><tr><th>Footprint</th><th class="n">Acres</th><th class="n">$/acre at the $2.9M ask</th><th>Basis</th></tr></thead>
+  <tbody>
+   <tr><td>Seller-stated</td><td class="n">17.80</td><td class="n">$162,921</td><td>Verbal / partner shorthand <span class="tag NV">UNVERIFIED</span></td></tr>
+   <tr><td>R5060 285 alone</td><td class="n">11.69</td><td class="n">$248,075</td><td>Deeded 11.61 ac; polygon computes 11.69 ac <span class="tag F">VERIFIED</span></td></tr>
+   <tr><td>R5060 285 + R5060 040 whole</td><td class="n">15.69</td><td class="n">$184,831</td><td>Contiguous single piece; ~1,484 ft shared boundary <span class="tag F">VERIFIED</span></td></tr>
+   <tr><td><b>Sellable &mdash; 285 + 040 less a 1.5 ac homesite</b></td><td class="n"><b>14.19</b></td><td class="n"><b>$204,369</b></td><td>Owner keeps the house <span class="tag A">MODELLED</span></td></tr>
+  </tbody>
+ </table>
+ <div class="callout bad"><b>The overstatement is worth money.</b> At $2.9M, a buyer paying for 17.8 acres is really paying <b>$204,369/acre</b> for 14.19 acres &mdash; not the $162,921/acre the stated figure implies. <b>The true per-acre price is 25% higher than the stated acreage suggests</b> (equivalently, the stated figure understates it by 20%). The acreage claim should be resolved by survey before any number is discussed, and any contract should be written on a <b>per-acre basis with a survey contingency</b> &mdash; not on a stated-acreage lump sum. This is the same pattern as the &ldquo;$1.5M / 7,000 sf home&rdquo; and &ldquo;$900K for the neighbour's 20 acres&rdquo; claims already disproved on this deal.</div>
+ <p class="small"><b>How the carve-out is modelled, and why it flatters the site.</b> The retained homesite is modelled as a 1.5-acre area centred on <b>R5060 040's parcel centroid</b> (not on the surveyed dwelling location, which was not obtained). Sellable acreage is placement-independent &mdash; any 1.5 acres removed from 15.69 leaves 14.19. What placement <i>does</i> change is how encumbered the remainder is: as modelled, <b>0.75 of the 1.5 acres falls inside the stream buffer</b>, so the carve-out absorbs part of the encumbrance and the balance reads cleaner than it should. Across realistic placements the practical developable base runs <b>9.05&ndash;10.37 acres</b>, against the 9.67 acres carried in this report. The error direction is <b>pro-seller</b> &mdash; correcting it makes the site worse, so no conclusion here depends on it. Whether Snellville will even permit the subdivision that creates the carve-out must be confirmed with the City, and a retained occupied parcel inside a development tract is a permanent interior out-parcel a production builder will discount for.</p>
+
+ <h2>2. Access &mdash; the constraint that decides the deal</h2>
+ <p>Snellville's <b>R-TH</b> townhouse district applies only <i>&ldquo;where public water and sewer are available and where there is direct access to collector streets, major streets or State routes&rdquo;</i> (City staff report, case RZ 25-05, 16 July 2025). That single sentence is the gate.</p>
+ <table>
+  <thead><tr><th>Finding</th><th>Measured</th><th>Read</th></tr></thead>
+  <tbody>
+   <tr><td>Only road frontage on the assemblage</td><td><b>Abilene Ln stub terminus</b>, ~40&ndash;60 ft, at the far western corner of R5060 285</td><td class="fail">Local street only</td></tr>
+   <tr><td>Functional class of Abilene Ln</td><td><b>&ldquo;Secondary Local&rdquo;</b> (Gwinnett street centrelines, ROADCLASS)</td><td class="fail">Not a collector</td></tr>
+   <tr><td>Second contact point</td><td>Abington Dr right-of-way at a corner sliver, ~52 ft distant</td><td class="fail">Corner, not usable frontage</td></tr>
+   <tr><td>Nearest Major Collector</td><td><b>Rockdale Cir &mdash; 513 ft ENE</b>, across third-party land</td><td class="fail">No frontage, no easement of record found</td></tr>
+   <tr><td>Nearest State route</td><td>Athens Hwy / US 78 &mdash; no frontage; E Main St is a Principal Arterial well beyond</td><td class="fail">No frontage</td></tr>
+   <tr><td>Does the parcel front &ldquo;Abington Dr SW&rdquo; as marketed?</td><td>No. County <code>ADDRESS</code> is null; usable frontage is the dead end of <b>Abilene Ln</b></td><td class="flag">Marketing address is misleading</td></tr>
+   <tr><td><b>R-TH minimum external street frontage</b></td><td>UDO Sec. 202-6.6 sets a separate minimum of <b>50 ft of external street frontage</b> for R-TH, independent of the collector-class test. Measured frontage here is <b>~40&ndash;60 ft</b> (geometry-derived; an earlier independent pass bracketed it at 47&ndash;63 ft).</td><td class="fail">Marginal at best &mdash; may fail on the dimension alone</td></tr>
+   <tr><td>Is it landlocked?</td><td>No &mdash; it abuts dedicated right-of-way (county <code>LANDLOCK</code> blank). Citywide every lot needs 25 ft of public-street frontage (Sec. 201-1.3.E.2.a), which is met.</td><td class="pass">Legal access exists</td></tr>
+  </tbody>
+ </table>
+ <div class="callout bad"><b>On the face of the ordinance, R-TH does not fit this site &mdash; on two independent tests.</b> Access is one local-street connection at the dead end of a ~200 ft residential stub, entering at the corner farthest from the buildable ridge, and the frontage is right at or below the 50 ft R-TH minimum. Routing a 55&ndash;110 unit townhome community out through Abilene Ln &rarr; Abilene Trl and the existing single-family subdivision is precisely what the collector-access criterion exists to prevent. Any townhome pitch has to either (a) win a waiver of both, or (b) buy frontage &mdash; which means assembling toward Athens Hwy across parcels owned by others.</div>
+ <div class="callout int"><b>This is the one respect in which the subject is worse than the parcels next door.</b> Apex Land Company's three attempts on 1804&ndash;1860 Athens Hwy all fronted <b>US 78, a State route</b> &mdash; they cleared the access test outright, and City staff <i>recommended approval</i>. Their applications died on assemblage and density politics (&sect;6), not on site constraints. The subject has no such frontage. So the Athens Hwy record does not tell you this area is un-entitleable; it tells you a site that <i>passed</i> the access test still could not get approved above ~5 u/ac against these neighbours. The subject starts a step behind that.</div>
+ <p class="small">Frontage here is a geometry-derived estimate (parcel boundary within 30 ft of a mapped street centreline), not a surveyed dimension. The county centreline layer carries no <code>ROW_WIDTH</code>. <b>Recorded frontage and any access easement must come from the plat for the Abilene Ln subdivision or a boundary survey.</b></p>
+
+ <h2>3. Site Fundamentals</h2>
+ <table>
+  <thead><tr><th>Attribute</th><th>Value</th><th>Read</th></tr></thead>
+  <tbody>
+   <tr><td>Zoning of record</td><td><b>RS-30</b>. Snellville's UDO Sec. 101-2.1 renamed the legacy <b>RS-180</b> to RS-30; county GIS still reports &ldquo;RS180.&rdquo; City of Snellville is the zoning authority, not Gwinnett County.</td><td class="flag">The &ldquo;18,000 sf minimum lot&rdquo; assumption is <b>wrong</b> &mdash; strike it</td></tr>
+   <tr><td><b>RS-30 development standards</b> (UDO Sec. 202-2.6)</td><td><b>Minimum lot area 30,000 sf</b>; minimum lot width 100 ft; front setback 50 ft; side 10 ft interior / 35 ft street; rear 40 ft; max height 35 ft; max lot coverage 35%; minimum unit floor area 1,700 sf; 2-car garage minimum. Citywide, every lot needs <b>25 ft of frontage</b> on a public street (Sec. 201-1.3.E.2.a), 35 ft on a cul-de-sac.</td><td class="flag"><b>&asymp;1.45 units/acre.</b> Confirms the 30,000 sf reading</td></tr>
+   <tr><td><b>R-TH townhouse standards</b> (UDO Sec. 202-6.6)</td><td><b>No minimum lot area per unit and no minimum lot width</b> &mdash; density is the only areal control. <b>No minimum tract size</b> to apply. Max height 35 ft; minimum unit floor area 1,200 sf; max 8 attached units per building; front 10 ft, side 0 ft interior / 5 ft street, rear 30 ft. Site setbacks 50 ft along external streets / 40 ft elsewhere; 20% open space. <b>And a separate minimum of 50 ft of external street frontage.</b></td><td class="fail">The <b>50 ft external street frontage minimum</b> is a second, sharper problem &mdash; see &sect;2</td></tr>
+   <tr><td><b>Density base</b> (UDO Secs. 201-1.1.B, 201-1.2.A)</td><td>Site area <i>&ldquo;excludes existing public rights-of-way but does include planned public or private rights-of-way that will be created in the development.&rdquo;</i> Maximum units = site area &times; district u/ac. Stream buffers, floodplain and wetlands are <b>not</b> netted out; &ldquo;net density&rdquo; is not a defined term in the UDO. City practice confirms it: RZ 25-05 108 units / 15.01 ac = &ldquo;gross density of 7.20&rdquo;; RZ 25-04 65 / 10.196 = 6.38.</td><td class="pass">CLOSED &mdash; this model's gross-acreage basis is correct</td></tr>
+   <tr><td>Perennial stream</td><td><b>1,094 ft</b> of NHD perennial channel (FCode 46006) inside the two parcels &mdash; 663 ft inside 285, the balance inside 040. NWI corroborates with two R5UBH riverine polygons (1.13 ac, 1.11 ac).</td><td class="fail">Bisects the tract</td></tr>
+   <tr><td>Pond</td><td>NHD waterbody / NWI <b>PUBHh</b> diked-impounded pond, 0.46&ndash;0.60 ac, <b>116 ft east of 285's boundary &mdash; entirely off-site</b></td><td class="pass">Costs no acreage (correct the earlier &ldquo;pond at the NE edge&rdquo; note)</td></tr>
+   <tr><td>Buffers &mdash; state</td><td>GA Erosion &amp; Sedimentation Act 25 ft undisturbed from wrested vegetation, both banks. Trout-stream 50 ft <b>does not apply</b> (Gwinnett's only secondary trout water is the Chattahoochee; this drains to Big Haynes Creek).</td><td class="flag">Applies</td></tr>
+   <tr><td>Buffers &mdash; local</td><td>Snellville's plan-review checklist requires variances for encroachment into a <b>75 ft / 50 ft</b> city stream buffer &mdash; the MNGWPD model.</td><td class="flag">Applies</td></tr>
+   <tr><td><b>Water-supply watershed &mdash; the 100/150 ft buffers DO apply</b></td><td>The parcel is inside Snellville's <b>Big Haynes Creek Watershed Protection Area</b> (UDO Ch. 400 Art. 3, Sec. 403-1.5; point-in-polygon confirmed against Gwinnett's Rockdale Reservoir watershed layer). Big Haynes is a <b>small</b> water supply watershed (43.3 sq mi at the Randy Poynter Lake intake; state threshold is 100 sq mi). A City of Snellville staff report for a case in this same protection area states the requirement verbatim: <i>&ldquo;a minimum 100 ft. non-disturbed stream buffer and 150 ft. impervious surface setback&rdquo;</i> (RZ 24-04 / LUP 24-02, 13 Feb 2025). The City's own FAQ refers to the <i>&ldquo;100' Big Haynes Creek stream buffer.&rdquo;</i></td><td class="fail">CLOSED &mdash; and it is the <b>binding</b> regime, not the 50/75 ft one</td></tr>
+   <tr><td>Topography</td><td>~51 ft of relief (1,017 &rarr; 966 ft, USGS 3DEP 1 m). Broad buildable plateau on the south/southeast at 1,005&ndash;1,017 ft; falls 8&ndash;13% to the stream valley. No slopes over 25%.</td><td class="pass">Gradeable, and the good pad is real</td></tr>
+   <tr><td>The access problem compounds the topography</td><td>The single access point is on the <b>west</b> boundary at the low end; the best pad is on the <b>southeast</b> ridge.</td><td class="flag">Street must cross or skirt the low ground</td></tr>
+   <tr><td>FEMA flood zone</td><td><b>Zone X (unshaded), Area of Minimal Flood Hazard &mdash; confirmed.</b> FIRM panel <b>13135C0129F</b>, effective <b>29 Sept 2006</b>. No SFHA, floodway, shaded Zone X or undetermined-hazard area anywhere in the parcel envelope (Georgia DFIRM statewide service; verified with a control query returning 20 features over a wider envelope, so the null result is real).</td><td class="pass">CLOSED &mdash; the good news on this parcel</td></tr>
+   <tr><td><b>Future-conditions floodplain &mdash; and this one bites</b></td><td>Gwinnett's flood-portal data returns one polygon inside the parcel envelope: FLD_AR_ID <b>&ldquo;BIGHAY&rdquo;</b>, ZONE_SUBTY <b>&ldquo;1 PCT FUTURE CONDITIONS&rdquo;</b>, &ldquo;Limited Detail Study (FUT)&rdquo;, 1.74 ac total, confined to the parcel's <b>northeast corner</b>. Snellville's engineering checklist is categorical: <i>&ldquo;No construction or structures, including grading, filling, cutting or displacement of earth is allowed within the base flood or future conditions floodplain,&rdquo;</i> and finished floors must be the higher of the future-conditions elevation or BFE + 3 ft.</td><td class="fail">Up to 1.74 ac (~15%) with a <b>total grading prohibition</b>. Exact on-parcel share unverified</td></tr>
+   <tr><td>Water &amp; sewer</td><td>Gwinnett County DWR is the provider. County record flags water/sewer/electric/gas all &ldquo;Y&rdquo;; the adjacent Athens Hwy rezoning plan showed a proposed sewer connection with manhole inverts; Oak Grove Glen next door is built and sewered.</td><td class="flag">Almost certainly available &mdash; get a DWR capacity letter</td></tr>
+  </tbody>
+ </table>
+
+ <h3>Net developable acreage</h3>
+ <table>
+  <thead><tr><th>Buffer regime</th><th class="n">Net on 285</th><th class="n">Net on 285+040</th><th class="n">Net on sellable 14.19 ac</th></tr></thead>
+  <tbody>
+   <tr><td>25 ft &mdash; GA Erosion & Sedimentation Act</td><td class="n">10.80</td><td class="n">14.19</td><td class="n">13.03</td></tr>
+   <tr><td>50 ft &mdash; Snellville / MNGWPD</td><td class="n">10.15</td><td class="n">12.93</td><td class="n">12.02</td></tr>
+   <tr><td>75 ft &mdash; Snellville / MNGWPD</td><td class="n">9.54</td><td class="n">11.75</td><td class="n">11.00</td></tr>
+   <tr><td>100 ft &mdash; Big Haynes water-supply watershed</td><td class="n">8.94</td><td class="n">10.72</td><td class="n">10.14</td></tr>
+   <tr><td>150 ft &mdash; Big Haynes WSW</td><td class="n">7.80</td><td class="n">8.96</td><td class="n">8.68</td></tr>
+  </tbody>
+ </table>
+ <div class="callout bad"><b>The binding row is the 150 ft one, and that is a change from the earlier read on this deal.</b> The Big Haynes 100 ft / 150 ft regime is <b>confirmed to apply</b>, not merely possible. So net developable acreage is <b>8.68 acres</b> outside the impervious setback (10.14 ac outside the 100 ft undisturbed buffer) &mdash; not the 11.00 acres the 75 ft regime would have allowed. Fragmentation then breaks it into <b>8.3 ac + 0.38 ac</b>, so the <b>practical developable base is ~8.3 acres of the 14.19 sellable &mdash; about 58% of what is being sold.</b> Add the future-conditions floodplain in the northeast corner, where grading is prohibited outright, and the usable pad shrinks further.</div>
+ <div class="callout"><b>What that leaves for a townhome scheme.</b> Density is capped on <i>gross</i> acreage, so the unit cap does not fall &mdash; but the units still have to fit. After 20% open space and 6% recreation are taken off the 14.19 ac gross, roughly <b>5.0 acres</b> of the buffer-free ground remains for lots, streets, alleys, detention and the amenity. At 22&times;50 ft lots that is 2.85 ac of lots at the 8 u/ac ceiling, leaving ~2.1 ac for all circulation &mdash; and Snellville prohibits front-entry garages, so the scheme needs both a street and a rear alley. Tight at the low densities, implausible at the ceiling.</div>
+
+ <h2>4. Valuation &mdash; the $2.9M question</h2>
+
+ <h3>What a townhome builder could pay (residual land value)</h3>
+ <p>A builder pays for dirt what is left after building, selling and earning a normal margin. Inputs: verified new-townhome pricing in this submarket of <b>$372,000</b> average <span class="tag F">FACT</span>; NAHB 2024 measured indirects 10.8% and builder net profit 11.0% <span class="tag F">FACT</span>; finished-lot ratio 18/21/24% of price <span class="tag A">ASSUMED</span>; horizontal development $65K/$55K/$45K per lot <span class="tag A">ASSUMED</span>.</p>
+ <table>
+  <thead><tr><th>Case</th><th class="n">Avg price</th><th class="n">Finished lot</th><th class="n">Vertical $/sf implied</th><th class="n">Horizontal</th><th class="n">Raw land per door</th></tr></thead>
+  <tbody>
+   <tr><td>LOW</td><td class="n">$340,000</td><td class="n">$61,200</td><td class="n">$111</td><td class="n">$65,000</td><td class="n"><b>$-9,000</b></td></tr>
+   <tr><td>BASE</td><td class="n">$372,000</td><td class="n">$78,120</td><td class="n">$115</td><td class="n">$55,000</td><td class="n"><b>$18,720</b></td></tr>
+   <tr><td>HIGH</td><td class="n">$400,000</td><td class="n">$96,000</td><td class="n">$117</td><td class="n">$45,000</td><td class="n"><b>$47,400</b></td></tr>
+  </tbody>
+ </table>
+ <p class="small">The implied vertical $/sf is the honesty check on the lot ratio: base implies ~$115/sf for attached product, which is buildable in Atlanta in 2026. <b>The LOW case is not a low land price &mdash; it is a deal that does not pencil at all</b> (residual is negative $9,000 per door). It appears as &ldquo;no bid&rdquo; below rather than as a negative dollar total, because multiplying a negative per-door figure by unit count yields a number that looks <i>worse</i> as density rises &mdash; the inverse of the real economics, and misleading to skim.</p>
+
+ <h3>Residual by density, on 14.19 sellable acres</h3>
+ <table>
+  <thead><tr><th class="n">u/ac</th><th class="n">Units</th><th class="n">LOW</th><th class="n">BASE</th><th class="n">HIGH</th><th class="n">BASE $/ac</th><th class="n">BASE vs ask</th><th>Precedent</th></tr></thead>
+  <tbody>
+   <tr><td class="n">3.84</td><td class="n">54</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$1,010,880</b></td><td class="n">$2,559,600</td><td class="n">$71,219</td><td class="n fail">65% below</td><td>Rosebud Rd precedent — the realistic RS-30 outcome</td></tr>
+   <tr><td class="n">4.62</td><td class="n">65</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$1,216,800</b></td><td class="n">$3,081,000</td><td class="n">$85,726</td><td class="n fail">58% below</td><td>Lenora Church precedent (RX)</td></tr>
+   <tr><td class="n">5.20</td><td class="n">73</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$1,366,560</b></td><td class="n">$3,460,200</td><td class="n">$96,277</td><td class="n fail">53% below</td><td>stretch</td></tr>
+   <tr><td class="n">6.00</td><td class="n">85</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$1,591,200</b></td><td class="n">$4,029,000</td><td class="n">$112,104</td><td class="n fail">45% below</td><td>optimistic — needs a friendly council</td></tr>
+   <tr><td class="n">7.20</td><td class="n">102</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$1,909,440</b></td><td class="n">$4,834,800</td><td class="n">$134,524</td><td class="n fail">34% below</td><td>only ever achieved from BG zoning</td></tr>
+   <tr><td class="n">8.00</td><td class="n">113</td><td class="n"><span class="fail">no bid</span></td><td class="n"><b>$2,115,360</b></td><td class="n">$5,356,200</td><td class="n">$149,032</td><td class="n fail">27% below</td><td>ordinance ceiling — never achieved in Snellville</td></tr>
+  </tbody>
+ </table>
+ <p class="small"><b>Snellville's actual record on density, 2024&ndash;2026.</b> From RS-30, council has approved townhome/attached rezonings at <b>3.84 u/ac</b> (RZ 25-01, Rosebud Rd, 5&ndash;0) and <b>4.62 u/ac</b> (RZ 25-03, Lenora Church, RX). The higher outcomes &mdash; 7.20 u/ac (RZ 25-05, Scenic Hwy) and 7.83 u/ac (RZ 24-02, W Main St) &mdash; were both <b>BG-zoned commercial sites with commercial neighbours, and both required gutting the 50 ft / 40 ft perimeter setbacks</b>. The 8.0 u/ac ordinance ceiling has never been approved in Snellville from any zoning.</p>
+
+ <h3>Reverse-solve: what would have to be true for $2.9M</h3>
+ <table>
+  <thead><tr><th class="n">u/ac</th><th class="n">Units</th><th class="n">Raw land $/door required</th><th class="n">Avg sale price required</th><th>vs verified $372,000 market</th></tr></thead>
+  <tbody>
+   <tr><td class="n">3.84</td><td class="n">54</td><td class="n">$53,704</td><td class="n"><b>$538,589</b></td><td class="fail">+45%</td></tr>
+   <tr><td class="n">4.62</td><td class="n">65</td><td class="n">$44,615</td><td class="n"><b>$495,311</b></td><td class="fail">+33%</td></tr>
+   <tr><td class="n">5.20</td><td class="n">73</td><td class="n">$39,726</td><td class="n"><b>$472,029</b></td><td class="fail">+27%</td></tr>
+   <tr><td class="n">6.00</td><td class="n">85</td><td class="n">$34,118</td><td class="n"><b>$445,322</b></td><td class="fail">+20%</td></tr>
+   <tr><td class="n">7.20</td><td class="n">102</td><td class="n">$28,431</td><td class="n"><b>$418,245</b></td><td class="flag">+12%</td></tr>
+   <tr><td class="n">8.00</td><td class="n">113</td><td class="n">$25,664</td><td class="n"><b>$405,065</b></td><td class="flag">+9%</td></tr>
+  </tbody>
+ </table>
+ <div class="callout bad"><b>Be precise about why $2.9M fails.</b> At the 8.0 u/ac ordinance ceiling (113 units) the required average sale price is <b>$405,065</b> &mdash; only 9% above market, and actually <i>below</i> Snellville's top townhome listing. So the required <b>price</b> is a stretch, not a fantasy. What fails is the required <b>density</b>: no RS-30 site in Snellville has been approved above 4.62 u/ac, and this one cannot even clear R-TH's collector-access test. At the realistic 3.84&ndash;4.62 u/ac, $2.9M would need <b>$495,311&ndash;$538,589</b> average pricing &mdash; 33&ndash;45% above market, and unsupported by any comp found.</div>
+
+ <h3>As-is value under current RS-30 zoning</h3>
+ <p><b>RS-30 is now confirmed at a 30,000 sf minimum lot and 100 ft minimum width</b> (UDO Sec. 202-2.6) &mdash; about 1.45 units per acre. Two separate constraints bind the yield, and the tighter one wins: the gross-density cap allows <b>20 lots</b> on 14.19 acres, but the confirmed 150 ft impervious setback leaves only 8.68 net acres, which at 30,000 sf lots and 72&ndash;82% net efficiency supports just <b>9&ndash;10 lots</b>. Nine or ten lots requiring a full street, sewer extension and stormwater system does not support development economics &mdash; the land trades on an acreage basis instead. Verified raw-acreage comparables in and near Snellville:</p>
+ <table>
+  <thead><tr><th>Comparable</th><th class="n">Acres</th><th class="n">Price</th><th class="n">$/acre</th><th>Status</th></tr></thead>
+  <tbody>
+   <tr><td>County appraisal, R5060 285</td><td class="n">11.61</td><td class="n">$301,800</td><td class="n">$25,995</td><td>Assessment &mdash; a floor, not a value</td></tr>
+   <tr><td>2578 Temple Johnson Rd</td><td class="n">10.95</td><td class="n">$599,000</td><td class="n">$54,703</td><td>Under contract</td></tr>
+   <tr><td>4122 Egypt Rd SW</td><td class="n">17.40</td><td class="n">$800,000</td><td class="n">$45,977</td><td>Off-market</td></tr>
+   <tr><td>0 Smith James Rd</td><td class="n">45.96</td><td class="n">$1,820,000</td><td class="n">$39,600</td><td>Active ask</td></tr>
+   <tr><td>Wynship Ln</td><td class="n">12.00</td><td class="n">$359,670</td><td class="n">$29,972</td><td>Off-market</td></tr>
+   <tr><td>0 Mink Livsey Rd</td><td class="n">18.90</td><td class="n">$1,750,000</td><td class="n">$92,593</td><td><b>Active ask, ENTITLED 45 lots</b> &rarr; $38,889/entitled lot</td></tr>
+  </tbody>
+ </table>
+ <p>Applying the $28,000&ndash;$56,000/acre band to 14.19 sellable acres gives <b>$397,432 &ndash; $794,864</b>, midpoint <b>~$596,148</b>. Note that even the fully entitled 45-lot Mink Livsey tract is <i>asking</i> only $92,593/acre &mdash; less than half the $204,369/acre this ask implies for unentitled dirt with one local-street connection.</p>
+ <div class="bigverdict">
+  <div class="q">Question 1 &mdash; can it dispose of at $2.9M as it sits?</div>
+  <div class="a">No. The ask is 3.6&times;&ndash;7.3&times; as-is comparable value.</div>
+  <p>As-is range on 14.19 acres: <b>$397,432&ndash;$794,864</b> &mdash; 4.9&times; the midpoint. The two most comparable entries (Temple Johnson, 10.95 ac <i>under contract</i> at $54,703/ac; Egypt Rd, 17.4 ac at $45,977/ac) both sit <i>above</i> the midpoint, so <b>3.6&ndash;3.7&times;</b> is the fairer headline than the midpoint multiple &mdash; the band is dragged down by a tax assessment this report itself calls &ldquo;not a value.&rdquo; The owner already tested the market himself &mdash; listed at $1,743,000 in May 2023, repriced six times down to $1,975,400, and <b>withdrawn 21 Feb 2025 without ever selling</b>, after roughly 21 months of exposure. His basis is <b>$36,900</b>, paid 17 Aug 2012 (Deed Bk 51587 Pg 382) &mdash; a ~13-year hold, not the ~3 years previously assumed.</p>
+ </div>
+ <div class="bigverdict">
+  <div class="q">Question 2 &mdash; if rezoned for townhomes, could it sell for $2.9M?</div>
+  <div class="a">No. And the rezoning is blocked before price matters.</div>
+  <p>Realistic RS-30 &rarr; townhome outcome (3.84&ndash;4.62 u/ac): <b>$1,010,880&ndash;$1,216,800</b>. Optimistic 6.0 u/ac: <b>$1,591,200</b>. Even the never-achieved 8.0 u/ac ceiling: <b>$2,115,360</b> &mdash; still <b>27% below the $2.9M ask</b> (equivalently, the ask sits 37% above it). Separately, R-TH requires direct collector/arterial access that this assemblage does not have, and three consecutive townhome rezonings on the adjoining Athens Hwy parcels (Apex Land Co., RZ 25-02 / 25-04 / 25-06) were <b>withdrawn in 2025 despite staff recommending approval</b>.</p>
+ </div>
+
+ <h3>Stress test &mdash; which assumption is the conclusion actually resting on?</h3>
+ <p>Three bundled cases can hide a single load-bearing input. Below, each input moves <b>alone</b> to the top of its band while the others stay at central case. Only <b>price</b> is a researched fact; lot ratio and horizontal cost are assumptions, so this is where the honest uncertainty lives.</p>
+ <table>
+  <thead><tr><th>Scenario (one input moved, others central)</th><th class="n">3.84 u/ac</th><th class="n">4.62 u/ac</th><th class="n">6.00 u/ac</th><th class="n">8.00 u/ac</th></tr></thead>
+  <tbody>
+   <tr><td>BASE (all inputs at base)</td><td class="n">$1,010,880</td><td class="n">$1,216,800</td><td class="n">$1,591,200</td><td class="n">$2,115,360</td></tr>
+   <tr><td>price &rarr; $446,000 (top Snellville listing)</td><td class="n">$1,850,040</td><td class="n">$2,226,900</td><td class="n"><b>$2,912,100</b> &#9733;</td><td class="n"><b>$3,871,380</b> &#9733;</td></tr>
+   <tr><td>lot ratio &rarr; 24% (top of assumed band)</td><td class="n">$1,613,520</td><td class="n">$1,942,200</td><td class="n">$2,539,800</td><td class="n"><b>$3,376,440</b> &#9733;</td></tr>
+   <tr><td>horizontal &rarr; $45,000 (top of assumed band)</td><td class="n">$1,594,080</td><td class="n">$1,918,800</td><td class="n">$2,509,200</td><td class="n"><b>$3,335,760</b> &#9733;</td></tr>
+   <tr><td>horizontal &rarr; $35,000 (national band low)</td><td class="n">$2,177,280</td><td class="n">$2,620,800</td><td class="n"><b>$3,427,200</b> &#9733;</td><td class="n"><b>$4,556,160</b> &#9733;</td></tr>
+   <tr><td>ALL THREE at top of band simultaneously</td><td class="n">$2,559,600</td><td class="n"><b>$3,081,000</b> &#9733;</td><td class="n"><b>$4,029,000</b> &#9733;</td><td class="n"><b>$5,356,200</b> &#9733;</td></tr>
+  </tbody>
+ </table>
+ <p class="small">&#9733; = clears the $2,900,000 ask. Break-even density is <b>10.91 u/ac</b> at central assumptions &mdash; above the 8.0 u/ac ordinance cap, so the central case never clears within the ordinance at any legal density. At top-of-band assumptions break-even falls to <b>4.31 u/ac</b>.</p>
+ <div class="callout"><b>The honest reading, and it cuts both ways.</b> $2.9M <i>does</i> clear if all three modelled inputs land at the top of their bands at once &mdash; and it clears at 4.31 u/ac, <i>below</i> the 4.62 u/ac Snellville actually approved at Lenora Church in 2025. It also clears at market pricing if the lot ratio is 24% or horizontal cost is $35,000 per lot, both inside the cited national bands. So the defensible claim is narrower than &ldquo;no number works&rdquo;:
+ <b>(1)</b> at the 3.84&ndash;4.62 u/ac this site would realistically be approved for, <b>no single input moving alone reaches $2.9M</b> &mdash; only all three simultaneously; <b>(2)</b> every clearing case requires top-of-band values on inputs that are <span class="tag A">ASSUMED</span> rather than researched, carries <b>zero entitlement-risk discount</b>, and assumes a rezoning actually happens; and <b>(3)</b> the entitlement is separately gated by the collector-access test in &sect;2. A residual computed at bundled-optimistic inputs is a theoretical ceiling, not a bid any builder writes. But it would be dishonest to present the central case as the only case.</div>
+
+ <h2>5. Buyer-Pool Scorecards</h2>
+ <div class="grid2">
+  <div>
+   <h3>Townhome / attached builder &mdash; WEAK</h3>
+   <table><tbody>
+    <tr><td>R-TH collector-access requirement</td><td class="fail">FAIL &mdash; local street only</td></tr>
+    <tr><td>Sewer availability</td><td class="pass">PASS &mdash; DWR area, verify capacity</td></tr>
+    <tr><td>FLUM support</td><td class="flag">FLAG &mdash; subject's designation <b>unverified</b>, and no document confirms the neighbours are Medium Density either</td></tr>
+    <tr><td>Density needed for $2.9M (8.0 u/ac)</td><td class="fail">FAIL &mdash; never approved in Snellville</td></tr>
+    <tr><td>Neighbour context (detached SF on all sides)</td><td class="fail">FAIL &mdash; caps density at ~4&ndash;5 u/ac</td></tr>
+    <tr><td>Precedent on the adjoining block</td><td class="fail">FAIL &mdash; 3 withdrawals in 2025</td></tr>
+   </tbody></table>
+   <h3>Detached production builder, RS-30 as-is &mdash; WEAK</h3>
+   <table><tbody>
+    <tr><td>Lot yield at 30,000 sf minimum</td><td class="fail">FAIL &mdash; ~11&ndash;13 lots on ~11 net ac</td></tr>
+    <tr><td>Retail support (Oak Grove Glen $415K&ndash;$512K next door)</td><td class="pass">PASS</td></tr>
+    <tr><td>Per-lot horizontal cost on long-frontage lots</td><td class="fail">FAIL &mdash; barely or negatively penciled</td></tr>
+    <tr><td>Buildable pad quality (SE ridge)</td><td class="pass">PASS</td></tr>
+    <tr><td>Single local access point for a subdivision</td><td class="flag">FLAG</td></tr>
+   </tbody></table>
+  </div>
+  <div>
+   <h3>Land buyer / estate-lot &mdash; MODERATE</h3>
+   <table><tbody>
+    <tr><td>Price discovery already done by the owner</td><td class="pass">PASS &mdash; 21 months, 6 reprices, no sale</td></tr>
+    <tr><td>Comparable acreage market ($28K&ndash;$56K/ac)</td><td class="pass">PASS &mdash; active tier</td></tr>
+    <tr><td>Contiguity with the owner's home</td><td class="pass">PASS &mdash; single 15.69 ac piece</td></tr>
+    <tr><td>Retained interior homesite</td><td class="flag">FLAG &mdash; permanent out-parcel</td></tr>
+    <tr><td>Seller's price expectation</td><td class="fail">FAIL &mdash; 3.6&times;&ndash;7.3&times; this tier</td></tr>
+   </tbody></table>
+   <h3>Fatal-flaw register</h3>
+   <table><tbody>
+    <tr><td>No collector / arterial frontage</td><td class="fail">Disqualifies R-TH on its face</td></tr>
+    <tr><td>Seller price 3.6&times;&ndash;7.3&times; as-is comps; 37% above even the ceiling townhome case</td><td class="fail">No spread at any structure</td></tr>
+    <tr><td>Acreage overstated by ~2.1 ac (11.8%)</td><td class="fail">Misrepresentation risk</td></tr>
+    <tr><td>Big Haynes 100/150 ft watershed buffers</td><td class="flag">Unresolved; cuts net developable acreage from 11.00 to 10.14 ac (100 ft) or 8.68 ac (150 ft), plus a possible 25% impervious cap</td></tr>
+    <tr><td>FEMA zone / future-conditions floodplain</td><td class="flag">Unverified</td></tr>
+    <tr><td>RS-30 dimensional table</td><td class="flag">Unverified &mdash; one phone call</td></tr>
+    <tr><td>Atlanta new-home prices &minus;5% YoY (Dec 2025)</td><td class="flag">Revenue headwind, no escalation</td></tr>
+   </tbody></table>
+  </div>
+ </div>
+
+ <h2>6. Verification Register &mdash; what was closed, and what is still open</h2>
+ <table>
+  <thead><tr><th>Open item</th><th>Status</th><th>Finding / how to close it</th></tr></thead>
+  <tbody>
+   <tr><td>Exact 285 deed consideration; liens assumed?</td><td class="pass">CLOSED</td><td><b>$36,900</b>, sale date <b>17 Aug 2012</b> (not Aug 2022), Bk 51587 Pg 382, grantor United Community Bank. Corroborated by checking all 11 Gwinnett parcels whose latest deed sits in Bk 51587 &mdash; all carry 2012 dates. Implied GA transfer tax $36.90. Chain: two same-day $0 instruments 28 Jan 2010 (Bk 49954 pp. 222 &amp; 224) from Temple Johnson Sub II and Hollisaja Properties &mdash; the foreclosure into the bank. <b>No tax lien</b> on the county record. Security deeds still unverified &mdash; GSCCCA is login-gated; run a grantor/grantee index on &ldquo;MINKOFF PHILLIP STEVEN&rdquo; 08/2012&ndash;present, Gwinnett Clerk 770-822-8100.</td></tr>
+   <tr><td>RS-30 dimensional standard + density-bonus / rezone feasibility</td><td class="pass">CLOSED</td><td><b>RS-30 = 30,000 sf minimum lot</b> (UDO Sec. 202-2.6), 100 ft minimum width, 50 ft front / 10 ft side / 40 ft rear setbacks, 35 ft max height, 35% max coverage, 1,700 sf minimum unit floor area &mdash; <b>&asymp;1.45 units per acre</b>. The district is RS-30, not RS-180 (Sec. 101-2.1 renaming table); the 18,000 sf assumption was wrong. <b>R-TH: 8.0 u/ac max, 20% open space, 6% recreation, 50 ft / 40 ft site setbacks, max 8 units per building, front-entry garages prohibited. RX: same 8 u/ac with mixed building types.</b> Rezone path: pre-submittal &rarr; deadline 6 weeks before Planning Commission (4th Tue) &rarr; Council (2nd &amp; 4th Mon), ~10 weeks deadline-to-decision; denial bars re-filing 12 months. Fee for 10&ndash;15 ac: $1,100 single-family / $2,000 multi-family, +40% for a FLUM amendment, ~$2,000&ndash;$3,500 all-in. <b>Still open: only the FLUM designation of parcel 5060 285.</b> Snellville Planning, 770-985-3513. <b>Caveat on the standards:</b> the dimensional tables were read from a third-party mirror of Snellville's UDO Ch. 200 (the City's 20 MB compiled PDF cannot be fetched remotely and Municode renders client-side). The section numbering and the RS-5 = 5,000 sf cross-check both corroborate it, and City staff reports independently confirm the gross-density practice &mdash; but confirm Sec. 202-2.6 against the City's own copy before relying on a specific setback. Note also that <b>UDO 26-01, an active Chapter 100/200 text amendment (V2 draft 18 May 2026), is still pending</b> and would change some of these.</td></tr>
+   <tr><td>Recorded legal access / frontage + creek buffer delineation</td><td class="flag">PARTLY</td><td><b>Not landlocked</b>, but frontage is a single ~40&ndash;60 ft Abilene Ln stub terminus, class &ldquo;Secondary Local&rdquo;; nearest Major Collector {geo['access']['ft_to_collector']} ft away across other owners' land. 1,094 ft of perennial stream inside the two parcels; pond is <b>off-site</b>, 116 ft east. Net developable 13.03 / 12.02 / 11.00 ac at the 25 / 50 / 75 ft regimes; ~1.34 ac stranded across the stream. <b>Now resolved:</b> the <b>Big Haynes 100 ft / 150 ft criteria DO apply</b> (see the row below), so binding net developable is <b>{NET_BIND} ac</b> with a <b>~{PRAC_BIND} ac practical base</b> &mdash; not the 11.00 ac the 50/75 ft regime implied. <b>Still open:</b> the recorded frontage dimension (Abilene Ln subdivision plat or boundary survey) &mdash; which now matters twice over, because R-TH carries a 50 ft external-street-frontage minimum and the measurement is ~40&ndash;60 ft &mdash; plus a field-located stream survey and a jurisdictional wetland delineation.</td></tr>
+   <tr><td><b>Do the Big Haynes water-supply-watershed buffers apply?</b></td><td class="pass">CLOSED &mdash; YES</td><td>The parcel is inside Snellville's <b>Big Haynes Creek Watershed Protection Area</b>, regulated under UDO Ch. 400 Art. 3, <b>Sec. 403-1.5</b> (with Sec. 403-1.4 stream buffers and Sec. 403-1.5.E for lots of record). Big Haynes is a <b>small</b> water supply watershed &mdash; 43.32 sq mi drainage at the Randy Poynter Lake / Jack Turner Dam intake in Rockdale County, against the 100 sq mi state threshold (Ga. Comp. R. &amp; Regs. 391-3-16-.01(7)(a)); Gwinnett's own Watershed Protection Plan states it directly. A Snellville staff report for a case in this same protection area requires verbatim <i>&ldquo;a minimum 100 ft. non-disturbed stream buffer and 150 ft. impervious surface setback&rdquo;</i> (RZ 24-04 / LUP 24-02, 13 Feb 2025), and the City FAQ refers to the <i>&ldquo;100' Big Haynes Creek stream buffer.&rdquo;</i> <b>Two caveats:</b> the City's generic engineering checklist still cites a 75 ft / 50 ft buffer and does not mention the 100 ft Big Haynes standard &mdash; the staff report and FAQ are the more specific and more recent authorities, but ask the City which governs. And whether Sec. 403-1.5 imposes a <b>site-level impervious cap</b> (the state's 25% criterion is watershed-wide) could not be retrieved and is <b>NOT VERIFIED</b>. Snellville Planning, 770-985-3513.</td></tr>
+   <tr><td><b>FEMA flood zone and panel</b></td><td class="pass">CLOSED</td><td><b>Zone X (unshaded), Area of Minimal Flood Hazard. FIRM panel 13135C0129F, effective 29 Sept 2006.</b> No SFHA, floodway, shaded Zone X or undetermined-hazard area in the parcel envelope, verified against the Georgia DFIRM statewide service with a control query proving the dataset is live. <b>But Zone X does not mean no floodplain constraint:</b> Gwinnett's flood-portal data maps a <b>&ldquo;1 PCT FUTURE CONDITIONS&rdquo;</b> polygon (FLD_AR_ID &ldquo;BIGHAY&rdquo;, 1.74 ac total, limited-detail study) in the parcel's <b>northeast corner</b>, and Snellville prohibits <i>&ldquo;construction or structures, including grading, filling, cutting or displacement of earth&rdquo;</i> within the future-conditions floodplain. Exact on-parcel acreage needs a GIS clip or Gwinnett DWR Stormwater Review, 770-822-7400.</td></tr>
+   <tr><td>040 homestead-exemption flag + interior condition</td><td class="flag">PARTLY</td><td><b>Interior, from the assessor's improvement record:</b> built 1984, 4,239 sf finished, 1.5 storeys, 4 bedrooms, condition code <b>&ldquo;AV &mdash; normal for age&rdquo;</b>, no recorded interior inspection date. County values: $530,000 dwelling + $165,000 land = <b>$695,000</b> appraised, $278,000 assessed. Purchase confirmed <b>$204,000 on 9 Oct 2007</b>, Bk 48420 Pg 001, grantor Long Beach Mortgage Loan Trust 2005-WL1. <b>Homestead: NOT VERIFIED</b> &mdash; qPublic returns 403 and the Tax Commissioner lookup is reCAPTCHA-gated. Gwinnett's codes are S1R / S3 / S5 / SG / SS / L1 / L3A / L5A (there is no &ldquo;S1&rdquo; or &ldquo;S4&rdquo;). A flat $252,760 assessment 2023&ndash;2025 with tax of $6,708 is <i>consistent with</i> homestead plus the Value Offset provision but is not proof. Gwinnett Tax Commissioner 770-822-8800.</td></tr>
+   <tr><td><b>The R-TH access requirement, in the ordinance's own words</b></td><td class="fail">OPEN &mdash; and this report's most decisive claim rests on it</td><td>The access sentence quoted throughout is taken from a <b>City staff report paraphrase</b> (RZ 25-05, 16 July 2025), <b>not from verified UDO text</b>. Because the &ldquo;blocked before price matters&rdquo; conclusion hangs entirely on it, it is held to the same standard as everything else here and flagged OPEN. A seller's broker will argue &mdash; not unreasonably &mdash; that (a) &ldquo;direct access to collector streets&rdquo; may be a purpose or evaluation statement rather than a mandatory dimensional standard, (b) this council demonstrably waives R-TH standards on request (it waived the 50 ft / 40 ft setbacks outright in RZ 25-05 and gutted them in RZ 24-02), (c) RX carries the same 8 u/ac and was the vehicle actually approved at Lenora Church, and (d) Gwinnett's ROADCLASS is a <i>county</i> functional class while Snellville is the zoning authority. <b>To close it:</b> read UDO Ch. 200 Art. 2 Div. 6 (R-TH) directly, and ask Snellville Planning (770-985-3513) whether the criterion is mandatory and whether it can be waived.</td></tr>
+   <tr><td>Gross-density base convention</td><td class="flag">OPEN</td><td>This model applies R-TH's 8.0 u/ac cap to <b>gross tract area</b>, so stream buffers do not reduce the unit cap directly. That is the standard reading and it is conservative against the 15.69 ac union, but many Georgia ordinances net floodplain and right-of-way out of &ldquo;gross.&rdquo; If Snellville nets buffers out, every unit count here falls by roughly 20&ndash;30%. One question to Planning settles it.</td></tr>
+   <tr><td>Would Century shed a future Oak Grove Glen phase?</td><td class="pass">CLOSED &mdash; NO, and the premise was wrong</td><td><b>Oak Grove Glen is closing out, not sitting on unbuilt phases.</b> The community is 70 homes total and only <b>4 remain available</b>, under a &ldquo;Final Opportunities Selling Fast&rdquo; banner: 1999 Brookhill Way (Lot 68) $469,290; 1944 Peaceful Pine (Lot 38) $493,790; 1954 Peaceful Pine (Lot 39) $495,290; 1979 Brookhill Way (Lot 70) $500,290. <b>Lots 68 and 70 of 70 are the last under construction</b>, and closed-out lot pages now return HTTP 410. So the &ldquo;~25 of ~70 delivered&rdquo; premise in the original file is wrong &mdash; there is nothing left to sell in bulk. Century's Q4 2025&ndash;Q2 2026 calls contain no Atlanta breakdown and no bulk-lot or bulk-home sale language; on options they describe <i>renegotiating</i> terms, not walking away. <b>The more useful read is the inverse:</b> Century's Snellville lot supply on Rockdale Circle runs out in 2026, and its verticals there are clearing at <b>$415K&ndash;$500K</b>, with two specs sold 8&ndash;9% <i>below</i> base ($414,990 vs $449,990 base; $419,990 vs $457,990).</td></tr>
+   <tr><td><b>Why did Apex withdraw three times next door?</b></td><td class="pass">CLOSED &mdash; and it is not what it looked like</td><td><b>RZ 25-02 (withdrawn 17 Apr 2025): the assemblage collapsed.</b> Planning Commission minutes, 22 Apr 2025, Planning Director Jason Thompson: the applicant withdrew because <i>&ldquo;two of the property owners have decided to remove their property from the proposed development.&rdquo;</i> Owner group named as Apex Land Company with Sang J &amp; Un H Cho; Steven L Baughcum &amp; Denise B Frazier; and 374 Mount Vernon Highway LLC. The acreage dropping from 14.385 to 10.196 in the next filing is consistent with the Cho tract coming out.<br><br><b>RZ 25-04 (withdrawn 15 Jul 2025): pulled to lobby, after a density rebuke.</b> Tyler Lasser of LJA emailed the City: <i>&ldquo;My client would like to formally withdraw our application for this project. We're hoping that before we resubmit, we can have some conversations with members of the planning commission and city council.&rdquo;</i> The Planning Commission had tabled it <b>5&ndash;0</b> on 24 Jun 2025 to let the applicant <i>&ldquo;come up with something that is less dense with added amenities and value.&rdquo;</i> Four neighbours spoke against it on density, stormwater and encroachment.<br><br><b>RZ 25-06 (withdrawn 24 Nov 2025): no reason stated</b>, withdrawn by Jeff Timler of Panel Steel Inc. &mdash; an owner-side principal, not the engineer &mdash; on the exact day public notice had to be posted. No staff report was ever issued; it never reached a hearing.<br><br><b>What is NOT in the record, and this matters:</b> no sewer-capacity objection, no stream-buffer or wetland objection, no traffic study requirement, and no Gwinnett DOT, DWR or GDOT adverse comment anywhere. Staff <b>recommended approval with conditions</b> and granted both requested variances. The only technical objection was a prohibition on hammerhead turnarounds for waste collection. And Snellville Council unanimously approved <b>108 townhomes</b> elsewhere in the city (RZ 25-05) on 15 Sept 2025, between the second and third withdrawals &mdash; so this is not a city-wide political freeze on attached product.</td></tr>
+   <tr><td><b>NEW RISK &mdash; pending UDO 26-01 text amendment</b></td><td class="flag">OPEN</td><td>Snellville has an active Chapter 100/200 text amendment in progress (Summary of Proposed Amendments, V2 draft 18 May 2026), heard by the Planning Commission 28 Apr and 26 May 2026. Two items bear directly on any R-TH plan here: <b>Item #26 (Sec. 207-2) would add a 15 ft buffer requirement between R-TH / R-TH-BTR and the RS-30, RS-15 and RS-5 districts</b> &mdash; the subject abuts RS-30 on effectively every side, so this would take further developable area off any scheme; and <b>Item #12 (Sec. 202-6) revisits R-TH site, building, placement and bulk standards</b> for rear-load townhomes. <b>Confirm whether UDO 26-01 has been adopted and in what form</b> before modelling any R-TH yield. Snellville Planning, 770-985-3513.</td></tr>
+  </tbody>
+ </table>
+
+ <h2>7. Where the Deal Actually Is</h2>
+ <ul class="path">
+  <li><b>Kill the $2.9M frame in the first conversation.</b> It is 3.6&times;&ndash;7.3&times; as-is comps and 37% above even the never-achieved 8 u/ac townhome ceiling at central-case assumptions. Nothing in the file supports it. The seller has already market-tested $1.74M&ndash;$2.32M for 21 months and got no buyer.</li>
+  <li><b>Resolve the acreage before price.</b> County records support 15.69 ac for both parcels; the seller says 17.8 and is keeping the house. Get the survey. A ~2.1 acre discrepancy on a $2.9M ask is not a rounding error.</li>
+  <li><b>Answer the access question next &mdash; it is cheaper than everything else and it is decisive.</b> One call to Snellville Planning: will the City entertain R-TH or RX on a tract whose only frontage is the Abilene Ln stub? If the answer is no, every townhome number in this report is academic and the parcel is an as-is acreage play worth $397,432&ndash;$794,864.</li>
+  <li><b>The Apex question is answered &mdash; use it.</b> Their three withdrawals were <b>assemblage failure and density politics, not site constraints</b>: two owners pulled out of RZ 25-02, and RZ 25-04 was withdrawn to lobby after the Planning Commission tabled it 5&ndash;0 demanding &ldquo;something less dense with added amenities.&rdquo; Staff had recommended approval. Two things follow. First, this area is <i>not</i> un-entitleable, so do not use the withdrawals as a scare tactic that a builder can check and disprove. Second, the Commission has put an explicit density ceiling on the record for this exact block &mdash; that is your best evidence for holding any townhome pro-forma to 4&ndash;5 u/ac, and it is worth more to you than the withdrawals were. Tyler Lasser, LJA, 470-202-9321, if you want the assemblage backstory.</li>
+  <li><b>The Century leg is definitively dead.</b> Oak Grove Glen has <b>4 homes left of 70</b> under a &ldquo;final opportunities&rdquo; banner &mdash; there is no future phase to buy. Stop spending time on it. The useful residue: Century's Snellville lot supply runs out in 2026 and its detached product there clears at $415K&ndash;$500K, with specs discounted 8&ndash;9% below base. That is your retail evidence, and it is softening.</li>
+  <li><b>If there is a deal, it is a low-strike option on 285 alone with a builder pre-committed.</b> Price it off the right footprint: <b>R5060 285 by itself is 11.69 acres</b>, worth <b>$327,320&ndash;$654,640</b> at the $28,000&ndash;$56,000/acre as-is band. An option strike has to sit <i>below</i> that to leave an assignment spread &mdash; target <b>$327,320&ndash;$556,444</b>, 9&ndash;12 months, $10K&ndash;$25K option fee, contingent on the City's access answer. Given the owner's $36,900 basis and 13-year hold, a seller-carry at a higher face can beat a low cash number for him after tax &mdash; that is the one lever with a real chance of moving him.</li>
+  <li><b>Walk if:</b> the price is at or near $2.9M on any footprint; the City confirms R-TH access is unavailable and the seller still wants entitled-land pricing; or the acreage cannot be reconciled by survey.</li>
+ </ul>
+
+ <h2>8. Deal / Flip Lens &mdash; internal</h2>
+ <h3>Basis &amp; economics</h3>
+ <table>
+  <thead><tr><th>Line</th><th class="n">Amount</th><th>Note</th></tr></thead>
+  <tbody>
+   <tr><td>Seller's basis, R5060 285</td><td class="n">$36,900</td><td>17 Aug 2012, Bk 51587 Pg 382 <span class="tag F">VERIFIED</span> &mdash; ~13-year hold, near-zero basis</td></tr>
+   <tr><td>Seller's basis, R5060 040</td><td class="n">$204,000</td><td>9 Oct 2007, Bk 48420 Pg 001, REO <span class="tag F">VERIFIED</span></td></tr>
+   <tr><td>County appraised, 285 / 040</td><td class="n">$301,800 / $695,000</td><td>Assessment floor, not value</td></tr>
+   <tr><td>Seller ask (this footprint)</td><td class="n">$2,900,000</td><td>= $204,369/ac on 14.19 real acres</td></tr>
+   <tr><td>As-is comp value, 14.19 ac</td><td class="n">$397,432&ndash;$794,864</td><td>$28K&ndash;$56K/ac tier, midpoint $596,148</td></tr>
+   <tr><td>Rezoned townhome value, realistic density</td><td class="n">$1,010,880&ndash;$1,216,800</td><td>3.84&ndash;4.62 u/ac, BASE residual</td></tr>
+   <tr><td>Rezoned townhome value, ceiling density</td><td class="n">$2,115,360</td><td>8.0 u/ac &mdash; never approved in Snellville</td></tr>
+   <tr><td>As-is comp value, R5060 285 alone (11.69 ac)</td><td class="n">$327,320&ndash;$654,640</td><td>Same $28K&ndash;$56K/ac band, applied to the smaller footprint</td></tr>
+   <tr><td>Your target acquisition (option strike)</td><td class="n">[fill]</td><td>Target <b>$327,320&ndash;$556,444</b> on 285 alone &mdash; must sit below the $654,640 as-is ceiling to leave spread</td></tr>
+   <tr><td>Your target assignment fee</td><td class="n">[fill]</td><td>Must clear $3K+ and leave the end buyer working math</td></tr>
+   <tr><td>Confirmed end-buyer number</td><td class="n">[fill]</td><td><b>Get this BEFORE tying anything up</b></td></tr>
+  </tbody>
+ </table>
+
+ <h3>Value-creation levers</h3>
+ <ul class="path">
+  <li><b>Two years of market rejection, in writing.</b> $1,743,000 (5/2023) &rarr; $1,495,000 &rarr; $1,719,995 &rarr; expired &rarr; relisted $2,324,000 (10/2024) &rarr; $1,975,400 (2/2025) &rarr; withdrawn 21 Feb 2025. Owner-marketed via flat-fee MLS. Six price changes, no sale.</li>
+  <li><b>$36,900 basis on 285, held 13 years.</b> Any number is a windfall; an installment / seller-carry at a higher face defers his gain and can beat a low cash number after tax. This is the single most usable lever.</li>
+  <li><b>The house is the emotional gate, and he has now offered to keep it.</b> That removes your relocation lever &mdash; but it also means the seller has already conceded he will break the assemblage. Push on <i>which</i> acres and how the carve-out is drawn; a homesite pulled to the Abington Dr edge is worth materially more to a builder than one left in the middle.</li>
+  <li><b>In-tier comps you can hand him:</b> Temple Johnson 10.95 ac at $54,703/ac (under contract); Egypt Rd 17.4 ac at $45,977/ac; and the decisive one &mdash; <b>Mink Livsey, 18.9 ac fully entitled for 45 lots, asking only $92,593/ac</b>. Unentitled dirt with one local-street connection cannot be worth $204,369/ac.</li>
+  <li><b>Softening market.</b> Atlanta new-home prices &minus;5% YoY Dec 2025 (John Burns); Zonda downgraded Atlanta to &ldquo;average&rdquo;; Gwinnett inventory up ~35% YoY at ~2.1 months supply. Oak Grove Glen next door has already cut its floor from $449,990 to $414,990.</li>
+ </ul>
+
+ <h3>Disposition paths</h3>
+ <table>
+  <thead><tr><th>Path</th><th>Structure</th><th class="n">Realistic exit</th><th>Read</th></tr></thead>
+  <tbody>
+   <tr><td>Option 285 alone &amp; assign, as-is</td><td>9&ndash;12 mo option, $10K&ndash;$25K, refundable EMD only</td><td class="n">$327,320&ndash;$654,640</td><td class="flag">The only version with a real chance. Strike must come in below this to leave a fee. Needs a builder pre-committed and the City's access answer first.</td></tr>
+   <tr><td>Entitle to R-TH, then flip</td><td>Option + rezone at your cost</td><td class="n">$1,010,880&ndash;$1,216,800</td><td class="fail">Blocked by the collector-access criterion. Do not fund an application until Planning says it is possible.</td></tr>
+   <tr><td>Assemble for frontage, then entitle</td><td>Add 5060 004 (2.83 ac) and/or 5060 283 (1.65 ac) on Athens Hwy</td><td class="n">[fill]</td><td class="fail">This is the Apex play &mdash; they tried it three times in 2025 and withdrew every time. Find out why before repeating it.</td></tr>
+   <tr><td>As-is acreage / estate buyer, full 14.19 ac</td><td>Straight assignment</td><td class="n">$397,432&ndash;$794,864</td><td class="flag">Achievable, but only if the seller comes down ~73%&ndash;86% from his ask.</td></tr>
+   <tr><td>Pay near $2.9M</td><td>Any</td><td class="n">&mdash;</td><td class="fail">No exit exists. Walk.</td></tr>
+  </tbody>
+ </table>
+
+ <h3>Margin risks</h3>
+ <table>
+  <thead><tr><th>Risk</th><th>Exposure</th></tr></thead>
+  <tbody>
+   <tr><td>Seller is aspirational, not motivated</td><td class="fail">Near-zero basis + 13-year hold + no carrying pressure ($1,749/yr tax on 285). He can sit indefinitely. Six reprices show movement, but he has never met the market.</td></tr>
+   <tr><td>Collector-access criterion</td><td class="fail">Kills the density story entirely. Verify before spending a dollar.</td></tr>
+   <tr><td>Big Haynes 100/150 ft watershed buffers &mdash; <b>confirmed, not contingent</b></td><td class="fail">Net developable is <b>8.68 ac</b>, practical pad <b>~8.3 ac</b> &mdash; 58% of the 14.19 ac being sold. This is the single biggest change from the earlier read on this deal. A site-level impervious cap under Sec. 403-1.5 remains unverified and could compound it.</td></tr>
+   <tr><td>Pending UDO 26-01 amendment</td><td class="flag">Item #26 would add a 15 ft buffer between R-TH and RS-30/RS-15/RS-5. The subject abuts RS-30 on every side. Confirm adoption status before underwriting any R-TH yield.</td></tr>
+   <tr><td>Future-conditions floodplain, NE corner</td><td class="flag">Up to 1.74 ac with an outright prohibition on grading, filling, cutting or earth displacement. Exact on-parcel share unverified.</td></tr>
+   <tr><td>Acreage misrepresentation</td><td class="flag">2.1 ac / 11.8% overstated. If you contract on stated acreage and it surveys short, that is your problem, not his &mdash; contract on a per-acre basis with a survey contingency.</td></tr>
+   <tr><td>Retained homesite as an interior out-parcel</td><td class="flag">A builder will discount for a 1.5 ac occupied parcel inside the tract, and for the access easement it needs.</td></tr>
+   <tr><td>Organised neighbour opposition</td><td class="flag">Three withdrawn townhome rezonings on the adjoining block in 2025. Assume a two-cycle process and price it in.</td></tr>
+   <tr><td>Revenue direction</td><td class="flag">No price escalation available in the model; the comp set is flat to down.</td></tr>
+  </tbody>
+ </table>
+
+ <div class="callout int"><b>Next internal steps, in order.</b> Four of the five original open items are now closed, so this list is shorter and sharper than it was.
+ <b>1. Snellville Planning, 770-985-3513</b> &mdash; three questions in one call: (a) will the City entertain R-TH or RX on a tract whose only frontage is the ~40&ndash;60 ft Abilene Ln stub, given both the collector-access criterion and the 50 ft external-street-frontage minimum; (b) the 2045 FLUM designation of PIN 5060 285; (c) has UDO 26-01 been adopted, and does Sec. 403-1.5 carry a site-level impervious cap. <b>2. Get a builder's real per-door number</b> for this exact location before any offer &mdash; Parkland Communities first, then DRB and Chafin. This replaces the single biggest assumption in the model. <b>3. Gwinnett DWR</b> &mdash; sewer availability and capacity letter for 5060 285, plus the Oak Grove Glen as-built showing whether a stub was left toward this parcel. <b>4. Gwinnett DWR Stormwater Review, 770-822-7400</b> &mdash; the on-parcel extent of the &ldquo;1 PCT FUTURE CONDITIONS&rdquo; floodplain in the northeast corner, where grading is prohibited outright. <b>5. Gwinnett Clerk, 770-822-8100</b> &mdash; security-deed index run on Minkoff; certified copy of Bk 51587 Pg 382. <b>6. Gwinnett Tax Commissioner, 770-822-8800</b> &mdash; homestead code on 5060 040. <b>7. Pull the PT-61 consideration</b> on Snellville's approved R-TH sites (Brookwood Green parcels 5007-165/282/283/285; R5100 023; the 1719 Scenic Hwy tract) and on the Athens Hwy parcels next door &mdash; none is published, and they are the only true entitled-townhome-land comps in this city.</div>
+
+</div>
+
+<footer>
+ <b>Sources.</b> Gwinnett County <i>Property_and_Tax</i> ArcGIS FeatureServer (parcel geometry, owner, acreage, zoning, values, deed references, sale amounts, improvement record); Gwinnett County CRM MapServer (street centrelines with ROADCLASS, right-of-way polygons, city limits); Gwinnett Accela MapServer (Rockdale Reservoir watershed district); USGS NHD (perennial flowline FCode 46006, waterbody FCode 39004); USFWS National Wetlands Inventory (PUBHh, R5UBH); USGS 3DEP elevation point service; City of Snellville UDO (compiled 3-10-2025) Secs. 101-2.1, 101-2.2, 206-2 use table; Snellville staff reports and minutes for RZ 24-01, 24-02, 24-03, 24-04, 25-01, 25-02, 25-03/LUP 25-01, 25-04, 25-05, 25-06; Snellville 2045 Comprehensive Plan FLUM (adopted 2-26-2024); Snellville Planning &amp; Development fee schedule (eff. 4-1-2025), rezoning process page, 2026 public-hearing calendar, development plan review engineering checklist; Gwinnett County DWR Rates &amp; Fee Schedule (Jan 2026); Gwinnett County Planning &amp; Development land-development fee summary; Georgia trout-stream designations by county; MNGWPD Model Stream Buffer Protection Ordinance; NAHB Cost of Construction Survey 2024; Dream Finders "Parkway James", DRB Homes "Langley Overlook", Traton "River Walk Place", Century Communities "Oak Grove Glen" builder pricing; Homes.com resale townhome inventory (Snellville, Grayson, Lawrenceville, Loganville); LandWatch / LandSearch acreage comparables; John Burns Research via Atlanta Agent Magazine and Zonda via Metro Atlanta CEO for market direction; WSB-TV on the RZ 25-05 approval. Basemaps &copy; Esri. Distances and areas computed in EPSG:32617 (UTM 17N). Both parcel rings were validated against the county's own computed <i>Shape__Area</i> and <i>Shape__Length</i> (R5060 285: 508,617.30 sf / 4,448.06 ft; R5060 040: 174,014.49 sf / 2,167.33 ft) and agree to within <b>0.13% on area and 0.06% on perimeter</b> &mdash; consistent projection drift, not transcription error. Against the <i>deeded</i> acreage the drift is 0.70% for 285 (11.691 computed vs 11.61 deeded) and 0.00% for 040. Stream buffer rows are computed at the nominal statutory width plus 5 ft per bank, to approximate half the channel, because buffers are measured from the point of wrested vegetation rather than the mapped centreline.<br><br>
+ <b>Disclaimer.</b> <b>SCREENING GRADE &mdash; NOT A SURVEY.</b> Desktop analysis from free public data. This is not a survey, title product, appraisal, engineering study, or investment advice. Frontage figures are geometry-derived estimates from mapped street centrelines, not surveyed dimensions. Stream positions come from NHD 1:24k flowlines, which are commonly 50&ndash;150 ft off the true channel; a field-located stream survey and a jurisdictional wetland delineation are required before reliance. The FEMA flood zone, the RS-30 dimensional standards, the parcel's Future Land Use Map designation, the applicability of the Big Haynes water-supply-watershed buffers, any security deeds or judgments, and the homestead status of R5060 040 are <b>unverified</b> and expressly flagged as such in the Verification Register. Residual land values are a model, not an offer: inputs tagged <span class="tag A">ASSUMED</span> are the author's assumptions and are stated so the arithmetic can be checked and replaced. Independent verification is recommended before any commitment.
+</footer>
+
+</div>
+<script>
+var D={"p285": [[[33.8526166, -83.9957968], [33.8515042, -83.9966806], [33.8504834, -83.9972785], [33.8507841, -83.9974888], [33.8510894, -83.9976986], [33.8512085, -83.9977805], [33.8514291, -83.997932], [33.8515238, -83.9979972], [33.8517181, -83.9981307], [33.8518734, -83.9982374], [33.8521979, -83.9984604], [33.8523641, -83.9985746], [33.8524959, -83.9986652], [33.8527794, -83.99886], [33.8527946, -83.9988704], [33.8529516, -83.9985423], [33.8529598, -83.9985249], [33.8529718, -83.9984994], [33.8528762, -83.9984337], [33.853253, -83.9976482], [33.8523954, -83.9970545], [33.8528212, -83.9961755], [33.85296, -83.995889], [33.8532289, -83.9960768], [33.8532739, -83.9961082], [33.8539083, -83.9965451], [33.8540087, -83.9963365], [33.8541649, -83.9960109], [33.8541665, -83.9960076], [33.8543026, -83.9957274], [33.8543159, -83.9956994], [33.8539012, -83.9956335], [33.8538947, -83.9956327], [33.853482, -83.9955676], [33.8528678, -83.995458], [33.8526166, -83.9957968]]], "p040": [[[33.8529718, -83.9984994], [33.853028, -83.9983815], [33.8532856, -83.9978392], [33.8532986, -83.9978111], [33.8533465, -83.9977098], [33.8534346, -83.9975276], [33.8535521, -83.9972844], [33.8537045, -83.9969696], [33.8538597, -83.9966465], [33.8538621, -83.9966415], [33.8539083, -83.9965451], [33.8532739, -83.9961082], [33.8532289, -83.9960768], [33.85296, -83.995889], [33.8528212, -83.9961755], [33.8523954, -83.9970545], [33.853253, -83.9976482], [33.8528762, -83.9984337], [33.8529718, -83.9984994]]], "homesite": [[[33.8531223, -83.9964069], [33.8530837, -83.9964124], [33.8530458, -83.9964224], [33.8530088, -83.9964368], [33.8529732, -83.9964555], [33.8529393, -83.9964783], [33.8529074, -83.9965049], [33.8528779, -83.9965352], [33.8528509, -83.9965688], [33.8528269, -83.9966054], [33.8528059, -83.9966446], [33.8527883, -83.9966861], [33.8527741, -83.9967295], [33.8527636, -83.9967744], [33.8527568, -83.9968202], [33.8527537, -83.9968667], [33.8527545, -83.9969133], [33.8527591, -83.9969595], [33.8527674, -83.997005], [33.8527795, -83.9970493], [33.852795, -83.997092], [33.852814, -83.9971327], [33.8528363, -83.9971709], [33.8528615, -83.9972063], [33.8528896, -83.9972386], [33.8529201, -83.9972674], [33.8529528, -83.9972925], [33.8529875, -83.9973136], [33.8530237, -83.9973306], [33.8530611, -83.9973432], [33.8530993, -83.9973514], [33.8531381, -83.9973551], [33.853177, -83.9973541], [33.8532156, -83.9973486], [33.8532535, -83.9973386], [33.8532905, -83.9973242], [33.8533261, -83.9973055], [33.85336, -83.9972828], [33.8533919, -83.9972561], [33.8534214, -83.9972259], [33.8534484, -83.9971923], [33.8534724, -83.9971557], [33.8534934, -83.9971164], [33.853511, -83.9970749], [33.8535252, -83.9970315], [33.8535357, -83.9969867], [33.8535425, -83.9969408], [33.8535456, -83.9968944], [33.8535448, -83.9968478], [33.8535402, -83.9968015], [33.8535319, -83.996756], [33.8535198, -83.9967117], [33.8535043, -83.996669], [33.8534853, -83.9966284], [33.853463, -83.9965902], [33.8534378, -83.9965548], [33.8534097, -83.9965225], [33.8533792, -83.9964937], [33.8533465, -83.9964686], [33.8533118, -83.9964474], [33.8532756, -83.9964304], [33.8532382, -83.9964178], [33.8531999, -83.9964096], [33.8531612, -83.996406], [33.8531223, -83.9964069]]], "sellable": [[[33.8504834, -83.9972785], [33.8507841, -83.9974888], [33.8510894, -83.9976986], [33.8512085, -83.9977805], [33.8514291, -83.997932], [33.8515238, -83.9979972], [33.8517181, -83.9981307], [33.8518734, -83.9982374], [33.8521979, -83.9984604], [33.8523641, -83.9985746], [33.8524959, -83.9986652], [33.8527794, -83.99886], [33.8527946, -83.9988704], [33.8529516, -83.9985423], [33.8529598, -83.9985249], [33.8529718, -83.9984994], [33.853028, -83.9983815], [33.8532856, -83.9978392], [33.8532986, -83.9978111], [33.8533465, -83.9977098], [33.8534346, -83.9975276], [33.8535521, -83.9972844], [33.8537045, -83.9969696], [33.8538597, -83.9966465], [33.8538621, -83.9966415], [33.8539083, -83.9965451], [33.8540087, -83.9963365], [33.8541649, -83.9960109], [33.8541665, -83.9960076], [33.8543026, -83.9957274], [33.8543159, -83.9956994], [33.8539012, -83.9956335], [33.8538947, -83.9956327], [33.853482, -83.9955676], [33.8528678, -83.995458], [33.8526166, -83.9957968], [33.8515042, -83.9966806], [33.8504834, -83.9972785]]], "stream": [[[33.8522811, -83.9998774], [33.8522571, -83.9996818], [33.8521843, -83.9994647], [33.8520917, -83.9992253], [33.8520584, -83.9991251], [33.8520441, -83.9990187], [33.8520494, -83.9989111], [33.8520741, -83.9988075], [33.8521169, -83.9987127], [33.8521758, -83.9986313], [33.8522777, -83.9985485], [33.8527339, -83.9982783], [33.852806, -83.9982135], [33.8528744, -83.9981432], [33.8529386, -83.9980675], [33.8529985, -83.9979868], [33.8530537, -83.9979015], [33.853104, -83.9978119], [33.8531493, -83.9977185], [33.8532075, -83.9975336], [33.8532509, -83.9973356], [33.8533243, -83.9971828], [33.8533688, -83.997031], [33.8534125, -83.9968446], [33.853408, -83.9966598], [33.8534565, -83.9962767], [33.8535019, -83.9961596], [33.8535651, -83.995984], [33.8535917, -83.9958906], [33.8535713, -83.9958451], [33.8534665, -83.9955021], [33.8533555, -83.9952979], [33.8531943, -83.9950147], [33.8531774, -83.9949612]], [[33.8529358, -83.9941982], [33.8529017, -83.9940888], [33.852908, -83.9939499], [33.852916, -83.9934874], [33.8529631, -83.9930466], [33.8530141, -83.9927674], [33.8530209, -83.9926516], [33.8530082, -83.9925249], [33.852996, -83.9924213], [33.8529751, -83.9923527], [33.8529351, -83.9922964], [33.8528751, -83.992206], [33.8527524, -83.9921179], [33.8527014, -83.9920041], [33.8526793, -83.9918893], [33.8526861, -83.9917735], [33.8527227, -83.9916913], [33.85274, -83.9916098], [33.8527369, -83.9914828], [33.8526958, -83.9913802], [33.8526536, -83.9912315], [33.8525734, -83.9911071], [33.8525131, -83.9910053], [33.8524026, -83.990853], [33.8523876, -83.9906933], [33.8523721, -83.9905137], [33.8523371, -83.9902212], [33.852362, -83.9901002], [33.8524868, -83.989969], [33.8526219, -83.9897974], [33.8527497, -83.9895593], [33.8528634, -83.9894285], [33.8530217, -83.9892962], [33.8531412, -83.9891718], [33.8531734, -83.9891193]]], "pond": [[[33.8531774, -83.9949612], [33.8531851, -83.9949371], [33.8532208, -83.9949569], [33.8532597, -83.9949906], [33.8532803, -83.9949969], [33.8532916, -83.994979], [33.8532995, -83.9949436], [33.8532872, -83.9948001], [33.8532755, -83.9945584], [33.8532628, -83.9944009], [33.8532532, -83.9943661], [33.8532221, -83.99429], [33.8531611, -83.9941903], [33.8531248, -83.994146], [33.8530778, -83.9941371], [33.853031, -83.9941387], [33.8529995, -83.9941714], [33.8529619, -83.9941868], [33.8529358, -83.9941982], [33.8529163, -83.994241], [33.8529155, -83.9943253], [33.8529439, -83.994412], [33.8530081, -83.9946414], [33.8530392, -83.9947176], [33.8530434, -83.9948894], [33.8530612, -83.9950186], [33.8530685, -83.995078], [33.8531046, -83.9951154], [33.8531449, -83.9950894], [33.8531702, -83.9950429], [33.8531715, -83.9949797], [33.8531774, -83.9949612]]], "band75": [[[33.8528339, -83.9987881], [33.8529516, -83.9985423], [33.8529598, -83.9985249], [33.8529718, -83.9984994], [33.853028, -83.9983815], [33.8532856, -83.9978392], [33.8532986, -83.9978111], [33.8533465, -83.9977098], [33.8534346, -83.9975276], [33.8535521, -83.9972844], [33.8537045, -83.9969696], [33.8538348, -83.9966983], [33.8538346, -83.9966909], [33.8538682, -83.9964255], [33.8538879, -83.9963747], [33.8538928, -83.9963617], [33.853956, -83.9961861], [33.853968, -83.9961488], [33.8539946, -83.9960554], [33.8540065, -83.9960051], [33.8540141, -83.9959535], [33.8540173, -83.9959012], [33.854016, -83.9958489], [33.8540101, -83.9957969], [33.8539999, -83.995746], [33.8539854, -83.9956966], [33.8539667, -83.9956492], [33.8539642, -83.9956435], [33.8539012, -83.9956335], [33.8538947, -83.9956327], [33.853482, -83.9955676], [33.8529385, -83.9954706], [33.8530013, -83.9955809], [33.8530834, -83.995732], [33.8531333, -83.9958955], [33.8531134, -83.995951], [33.8530705, -83.9960616], [33.8530552, -83.9961064], [33.8530436, -83.9961527], [33.8530356, -83.9962001], [33.8529871, -83.9965832], [33.852983, -83.9966289], [33.8529824, -83.9966748], [33.8529851, -83.9967816], [33.8529626, -83.9968773], [33.8529357, -83.9969692], [33.852882, -83.997081], [33.8528646, -83.9971211], [33.8528503, -83.9971629], [33.8528392, -83.997206], [33.8528014, -83.9973783], [33.8527635, -83.9974986], [33.852743, -83.997541], [33.8527084, -83.9976025], [33.8526709, -83.9976605], [33.85263, -83.9977156], [33.8525862, -83.9977672], [33.8525394, -83.9978153], [33.85251, -83.9978418], [33.8520891, -83.9980911], [33.8520389, -83.9981261], [33.8519369, -83.9982089], [33.8519072, -83.9982354], [33.8518928, -83.9982507], [33.8521979, -83.9984604], [33.8523641, -83.9985746], [33.8524959, -83.9986652], [33.8527485, -83.9988387], [33.8528339, -83.9987881]]], "band100": [[[33.8528616, -83.9985881], [33.8528849, -83.9985727], [33.8529069, -83.9985548], [33.8529743, -83.9984942], [33.853028, -83.9983815], [33.8532856, -83.9978392], [33.8532986, -83.9978111], [33.8533465, -83.9977098], [33.8534346, -83.9975276], [33.8535521, -83.9972844], [33.8536622, -83.9970569], [33.8536901, -83.9969382], [33.8536966, -83.9969041], [33.8537001, -83.9968694], [33.8537007, -83.9968344], [33.853697, -83.9966808], [33.8537354, -83.9963775], [33.8537634, -83.9963053], [33.8537667, -83.9962965], [33.8538299, -83.9961209], [33.853838, -83.9960957], [33.8538646, -83.9960023], [33.8538727, -83.9959681], [33.8538779, -83.9959332], [33.85388, -83.9958978], [33.8538791, -83.9958623], [33.8538752, -83.9958272], [33.8538682, -83.9957926], [33.8538584, -83.9957592], [33.8538457, -83.9957271], [33.853835, -83.9957032], [33.8538094, -83.9956192], [33.853482, -83.9955676], [33.8531231, -83.9955036], [33.853207, -83.9956578], [33.8532811, -83.9959004], [33.8532387, -83.9960183], [33.853195, -83.996131], [33.8531846, -83.9961613], [33.8531768, -83.9961927], [33.8531714, -83.9962248], [33.8531228, -83.9966079], [33.8531201, -83.9966389], [33.8531197, -83.99667], [33.8531229, -83.9968019], [33.8530936, -83.9969269], [33.853061, -83.9970381], [33.853001, -83.9971631], [33.8529892, -83.9971903], [33.8529795, -83.9972186], [33.852972, -83.9972478], [33.8529324, -83.9974284], [33.852888, -83.9975695], [33.8528594, -83.9976283], [33.8528198, -83.9976989], [33.8527766, -83.9977657], [33.8527295, -83.9978291], [33.8526791, -83.9978885], [33.8526254, -83.9979437], [33.8525822, -83.9979826], [33.8521499, -83.9982386], [33.8521159, -83.9982624], [33.8520214, -83.9983391], [33.8521979, -83.9984604], [33.8523641, -83.9985746], [33.8524959, -83.9986652], [33.852605, -83.9987401], [33.8528616, -83.9985881]]], "access_pt": [33.8511141, -83.9978006], "stream_lbl": [33.853279, -83.997277], "collector_gap": [[33.8535784, -83.9955828], [33.8537621, -83.9939091]], "collector_name": "ROCKDALE CIR", "collector_gap_ft": 513, "center": [33.85257, -83.997034], "streets": [{"name": "ABILENE LN", "cls": "Secondary Local", "coords": [[33.8508421, -83.9983825], [33.8511141, -83.9978006]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.849105, -83.9971952], [33.8489482, -83.9970695], [33.8488711, -83.9970008], [33.8488036, -83.9969321], [33.8487368, -83.996854], [33.8485697, -83.9966483], [33.8482483, -83.9962524]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.8500592, -83.9978496], [33.849753, -83.9976359], [33.8492854, -83.9973133], [33.849105, -83.9971952]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.8508421, -83.9983825], [33.850724, -83.9983031], [33.8502735, -83.9979945], [33.8500592, -83.9978496]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.8519431, -83.9993537], [33.8518709, -83.9992514], [33.8517157, -83.9990599], [33.8516411, -83.9989725], [33.8515491, -83.9988894], [33.8514717, -83.9988207], [33.8513613, -83.9987401], [33.8508421, -83.9983825]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.8523813, -83.9997547], [33.8519431, -83.9993537]]}, {"name": "ABILENE TRL", "cls": "Secondary Local", "coords": [[33.8551189, -84.0000335], [33.8546252, -84.0012831], [33.8546158, -84.0012989], [33.8546038, -84.0013127], [33.8545896, -84.0013243], [33.8545736, -84.0013334], [33.8545564, -84.0013395], [33.8545383, -84.0013427], [33.85452, -84.0013427], [33.8545019, -84.0013396], [33.8543894, -84.0012582], [33.8541475, -84.0010794], [33.8523813, -83.9997547]]}, {"name": "ABINGTON DR", "cls": "Secondary Local", "coords": [[33.8536262, -83.9989375], [33.8531149, -83.9985423]]}, {"name": "ABINGTON DR", "cls": "Secondary Local", "coords": [[33.8551189, -84.0000335], [33.8549208, -83.9999106], [33.8548139, -83.9998319], [33.8546697, -83.9997198], [33.8542959, -83.9994349], [33.8536262, -83.9989375]]}, {"name": "ABINGTON DR", "cls": "Secondary Local", "coords": [[33.8562003, -84.0004568], [33.8556821, -84.0002666], [33.8554587, -84.0001792], [33.8552411, -84.0000885], [33.8551189, -84.0000335]]}, {"name": "ABINGTON LN", "cls": "Secondary Local", "coords": [[33.8541993, -83.9977621], [33.8541322, -83.9979414], [33.8540644, -83.9980935], [33.8539566, -83.9983128], [33.8537264, -83.9987402], [33.8536262, -83.9989375]]}, {"name": "ABINGTON LN", "cls": "Secondary Local", "coords": [[33.8564069, -83.9968863], [33.8562576, -83.9969085], [33.8561863, -83.9969167], [33.8561189, -83.9969238], [33.8560678, -83.9969274], [33.85601, -83.9969229], [33.8559685, -83.9969172], [33.8559271, -83.9969045], [33.8558981, -83.9968907], [33.8558219, -83.9968493], [33.8557018, -83.9967737], [33.8555924, -83.9967019], [33.8552143, -83.9964832], [33.8550947, -83.9964218], [33.8547524, -83.9962608], [33.8546814, -83.9962869], [33.8545175, -83.9967877], [33.8541993, -83.9977621]]}, {"name": "PEACEFUL PINE AVE", "cls": "Secondary Local", "coords": [[33.8521675, -83.9944411], [33.8521668, -83.9944407], [33.8521647, -83.9944397], [33.8521614, -83.9944385], [33.8521568, -83.9944376], [33.852151, -83.9944372], [33.852144, -83.9944377], [33.8521359, -83.9944396], [33.8521268, -83.9944433], [33.8521166, -83.9944491], [33.8521055, -83.9944574], [33.8520934, -83.9944686], [33.8520805, -83.994483], [33.8520667, -83.9945012], [33.8520522, -83.9945234], [33.8520369, -83.99455], [33.8520209, -83.9945815], [33.8513721, -83.9959342]]}, {"name": "PEACEFUL PINE AVE", "cls": "Secondary Local", "coords": [[33.8513721, -83.9959342], [33.8512249, -83.9962409], [33.8512103, -83.9962733], [33.8511988, -83.9963025], [33.8511901, -83.9963288], [33.851184, -83.9963522], [33.85118, -83.9963729], [33.851178, -83.996391], [33.8511777, -83.9964067], [33.8511786, -83.9964201], [33.8511806, -83.9964314], [33.8511832, -83.9964408], [33.8511863, -83.9964483], [33.8511896, -83.9964541], [33.8511926, -83.9964583], [33.8511951, -83.9964612], [33.8511969, -83.9964628], [33.8511975, -83.9964633]]}, {"name": "BROOKHILL WAY", "cls": "Secondary Local", "coords": [[33.8515181, -83.9928583], [33.8513324, -83.9938131], [33.8513179, -83.9938741], [33.8512983, -83.9939336], [33.8512738, -83.9939912], [33.8505977, -83.9954007]]}, {"name": "ROCKDALE CIR", "cls": "Major Collector", "coords": [[33.8492104, -83.9949279], [33.8490817, -83.9951706], [33.8490248, -83.9952687], [33.8489479, -83.9953881]]}, {"name": "ROCKDALE CIR", "cls": "Major Collector", "coords": [[33.8494709, -83.9942944], [33.849352, -83.9946053], [33.8492769, -83.9947847], [33.8492104, -83.9949279]]}, {"name": "ROCKDALE CIR", "cls": "Major Collector", "coords": [[33.8505007, -83.9925977], [33.8503948, -83.9927169], [33.8502263, -83.992923], [33.8501787, -83.9929889], [33.8501018, -83.9930908], [33.8500311, -83.9931941], [33.8499378, -83.9933422], [33.8498456, -83.9934914], [33.8497444, -83.9936724], [33.8497036, -83.9937486], [33.8496392, -83.9938764], [33.8496071, -83.9939499], [33.8495492, -83.9940944], [33.8494709, -83.9942944]]}, {"name": "ROCKDALE CIR", "cls": "Major Collector", "coords": [[33.8538949, -83.9939249], [33.8537621, -83.9939091], [33.8536301, -83.9938869], [33.8534994, -83.9938581], [33.8533703, -83.9938228], [33.8532432, -83.9937813], [33.8531182, -83.9937334], [33.8529957, -83.9936794], [33.8528761, -83.9936195], [33.8527596, -83.9935536], [33.8526465, -83.9934821], [33.8525371, -83.9934051], [33.8522625, -83.9932091], [33.852166, -83.9931405], [33.8520656, -83.9930778], [33.8519617, -83.9930211], [33.8518546, -83.9929706], [33.8517447, -83.9929266], [33.8516324, -83.9928891], [33.8515181, -83.9928583]]}, {"name": "ROCKDALE CIR", "cls": "Major Collector", "coords": [[33.8560663, -83.9937669], [33.855633, -83.9938111], [33.8551992, -83.9938489], [33.8547648, -83.9938805], [33.85433, -83.9939058], [33.8538949, -83.9939249]]}], "ac": {"p285": 11.69, "p040": 4.0, "union": 15.69, "homesite": 1.5, "sellable": 14.19, "band75": 6.74, "band100": 4.97}};
+var topo=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:20});
+var sat=L.layerGroup([
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}),
+ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,opacity:.85})
+]);
+var map=L.map('imap',{center:D.center,zoom:16,layers:[topo],scrollWheelZoom:true});
+map.createPane('hs');map.getPane('hs').style.mixBlendMode='multiply';map.getPane('hs').style.zIndex=250;
+var hill=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',{pane:'hs',opacity:.9,maxZoom:20}).addTo(map);
+
+var topoParcelStyle={color:'#666666',weight:0.7,opacity:0.45,fillOpacity:0};
+var satParcelStyle={color:'#ffffff',weight:0.8,opacity:0.55,fillOpacity:0};
+var parcels=L.esri.featureLayer({url:'https://services3.arcgis.com/RfpmnkSAQleRbndX/arcgis/rest/services/Property_and_Tax/FeatureServer/0',minZoom:14,style:function(){return topoParcelStyle;}}).addTo(map);
+
+// D.stream may be a single line ([[lat,lon],...]) or multi-line
+// ([[[lat,lon],...],...]); flatten to a point list for label anchoring.
+function flatpts(g){
+  if(!g.length) return [];
+  return (Array.isArray(g[0][0])) ? g.reduce(function(a,b){return a.concat(b);},[]) : g;
+}
+var streamPts=flatpts(D.stream);
+
+// stream buffer band (75 ft impervious setback) then the stream itself
+var band=L.polygon(D.band75,{color:'#2980b9',weight:1,fillColor:'#2980b9',fillOpacity:.22}).addTo(map)
+  .bindTooltip('150 ft impervious setback (Big Haynes WSW) — '+D.ac.band75+' ac',{sticky:true});
+var band100=L.polygon(D.band100,{color:'#1a5276',weight:1.5,fillColor:'#1f6fa8',fillOpacity:.35}).addTo(map)
+  .bindTooltip('100 ft undisturbed buffer — '+D.ac.band100+' ac',{sticky:true});
+var stream=L.polyline(D.stream,{color:'#1f6fa8',weight:3}).addTo(map)
+  .bindTooltip('perennial stream \u2014 NHD FCode 46006',{sticky:true});
+var pond=L.polygon(D.pond,{color:'#1f6fa8',weight:1.5,fillColor:'#5dade2',fillOpacity:.65}).addTo(map)
+  .bindTooltip('pond \u2014 off-site',{direction:'top'});
+
+// streets: collector highlighted, locals muted
+var collector=L.layerGroup(), locals=L.layerGroup();
+D.streets.forEach(function(s){
+  var isCol=s.cls!=='Secondary Local';
+  L.polyline(s.coords,{color:isCol?'#1e8449':'#8a8f97',weight:isCol?4:2,opacity:isCol?.95:.7,
+    dashArray:isCol?null:'4,4'}).addTo(isCol?collector:locals).bindTooltip(s.name+' \u2014 '+s.cls);
+});
+locals.addTo(map);collector.addTo(map);
+
+// the assemblage
+var p285=L.polygon(D.p285,{color:'#c0392b',weight:3,fillColor:'#f1c40f',fillOpacity:.45}).addTo(map)
+  .bindTooltip('R5060 285 \u2022 '+D.ac.p285+' ac \u2014 FOR SALE',{permanent:true,direction:'center',className:'subjlbl'});
+var p040=L.polygon(D.p040,{color:'#c0392b',weight:2,dashArray:'6,4',fillColor:'#f1c40f',fillOpacity:.18}).addTo(map)
+  .bindTooltip('R5060 040 \u2022 4.0 ac',{direction:'top'});
+var home=L.polygon(D.homesite,{color:'#b45309',weight:2.5,dashArray:'5,3',fillColor:'#e07b39',fillOpacity:.35}).addTo(map)
+  .bindTooltip('OWNER RETAINS \u2014 1.5 ac homesite (modelled)',{direction:'top'});
+
+// analysis annotations (topo only)
+var analysis=L.layerGroup();
+function lbl(a,b,x,cls,ax,ay){L.marker([a,b],{icon:L.divIcon({className:'',
+  html:'<div class="lbl '+cls+'">'+x+'</div>',iconSize:[10,10],iconAnchor:[ax||0,ay||0]})}).addTo(analysis);}
+L.circleMarker(D.access_pt,{radius:7,color:'#a5281b',weight:3,fillColor:'#fff',fillOpacity:1})
+  .addTo(analysis).bindTooltip('ONLY ACCESS \u2014 Abilene Ln stub terminus (Secondary Local)',{direction:'right'});
+lbl(D.access_pt[0],D.access_pt[1],'\u2190 ONLY ACCESS \u00b7 ~40\u201360 ft, local street','red',-14,6);
+L.polyline(D.collector_gap,{color:'#1e8449',weight:2.5,dashArray:'8,6'}).addTo(analysis)
+  .bindTooltip(D.collector_gap_ft+' ft to '+D.collector_name+' (Major Collector) \u2014 across third-party land');
+lbl(D.collector_gap[0][0],D.collector_gap[0][1],
+    D.collector_gap_ft+' ft \u2192 nearest collector','sub',-6,-14);
+lbl(D.stream_lbl[0],D.stream_lbl[1],'perennial stream · 100/150 ft buffers','blu',130,-28);
+map.addLayer(analysis);
+
+L.control.scale({imperial:true,metric:true}).addTo(map);
+map.fitBounds(L.featureGroup([p285,p040]).getBounds(),{padding:[42,42]});
+
+var bTopo=document.getElementById('bTopo'),bSat=document.getElementById('bSat'),lg=document.getElementById('mlegend');
+function setBase(w){
+ if(w==='sat'){map.removeLayer(topo);map.removeLayer(hill);map.addLayer(sat);
+  sat.eachLayer(function(l){l.bringToBack();});
+  parcels.setStyle(function(){return satParcelStyle;});parcels.bringToFront();
+  map.removeLayer(analysis);map.removeLayer(band);map.removeLayer(band100);
+  [p285,p040,home,stream,pond].forEach(function(l){l.bringToFront();});
+  bSat.classList.add('on');bTopo.classList.remove('on');lg.classList.add('dark');
+ }else{map.removeLayer(sat);map.addLayer(topo);topo.bringToBack();
+  if(!map.hasLayer(hill))map.addLayer(hill);
+  parcels.setStyle(function(){return topoParcelStyle;});
+  map.addLayer(band);band.bringToBack();map.addLayer(band100);map.addLayer(analysis);
+  bTopo.classList.add('on');bSat.classList.remove('on');lg.classList.remove('dark');
+ }
+}
+bTopo.onclick=function(){setBase('topo');};bSat.onclick=function(){setBase('sat');};
+</script>
+</body></html>
